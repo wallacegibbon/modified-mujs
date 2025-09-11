@@ -28,8 +28,7 @@ typedef int Rune;	/* 32 bits */
 #define tolowerrune_full	jsU_tolowerrune_full
 #define toupperrune_full	jsU_toupperrune_full
 
-enum
-{
+enum {
 	UTFmax		= 4,		/* maximum bytes per rune */
 	Runesync	= 0x80,		/* cannot represent part of a UTF sequence (<) */
 	Runeself	= 0x80,		/* rune and UTF sequences are the same (<) */
@@ -37,16 +36,16 @@ enum
 	Runemax		= 0x10FFFF,	/* maximum rune value */
 };
 
-int	chartorune(Rune *rune, const char *str);
-int	runetochar(char *str, const Rune *rune);
-int	runelen(int c);
+int chartorune(Rune *rune, const char *str);
+int runetochar(char *str, const Rune *rune);
+int runelen(int c);
 
-int		isalpharune(Rune c);
-int		islowerrune(Rune c);
-int		isupperrune(Rune c);
-Rune		tolowerrune(Rune c);
-Rune		toupperrune(Rune c);
-const Rune*	tolowerrune_full(Rune c);
-const Rune*	toupperrune_full(Rune c);
+int isalpharune(Rune c);
+int islowerrune(Rune c);
+int isupperrune(Rune c);
+Rune tolowerrune(Rune c);
+Rune toupperrune(Rune c);
+const Rune* tolowerrune_full(Rune c);
+const Rune* toupperrune_full(Rune c);
 
 #endif

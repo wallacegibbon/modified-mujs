@@ -515,7 +515,8 @@ static void js_pushrune(js_State *J, Rune rune)
 	}
 }
 
-void jsR_unflattenarray(js_State *J, js_Object *obj) {
+void jsR_unflattenarray(js_State *J, js_Object *obj)
+{
 	if (obj->type == JS_CARRAY && obj->u.a.simple) {
 		js_Property *ref;
 		int i;

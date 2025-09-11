@@ -10,3 +10,6 @@ tags
 user.make
 .exrc
 .vimrc
+
+SpecialCasing.txt
+UnicodeData.txt

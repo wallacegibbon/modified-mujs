@@ -292,8 +292,7 @@ static void usage(void)
 	exit(1);
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char *input;
 	js_State *J;

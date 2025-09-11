@@ -161,8 +161,7 @@ void js_RegExp_prototype_exec(js_State *J, js_Regexp *re, const char *text);
 
 void js_trap(js_State *J, int pc); /* dump stack and environment to stdout */
 
-struct js_StackTrace
-{
+struct js_StackTrace {
 	const char *name;
 	const char *file;
 	int line;
@@ -170,8 +169,7 @@ struct js_StackTrace
 
 /* Exception handling */
 
-struct js_Jumpbuf
-{
+struct js_Jumpbuf {
 	jmp_buf buf;
 	js_Environment *E;
 	int envtop;
@@ -196,8 +194,7 @@ void js_putm(js_State *J, js_Buffer **sb, const char *s, const char *e);
 
 /* State struct */
 
-struct js_State
-{
+struct js_State {
 	void *actx;
 	void *uctx;
 	js_Alloc alloc;
@@ -332,8 +329,7 @@ enum js_Class {
 	purpose as the string zero terminator.
 */
 
-union js_Value
-{
+union js_Value {
 	struct {
 		char pad[15];
 		char type; /* type tag overlaps with final byte of shrstr */
@@ -348,23 +344,20 @@ union js_Value
 	} u;
 };
 
-struct js_String
-{
+struct js_String {
 	js_String *gcnext;
 	char gcmark;
 	char p[1];
 };
 
-struct js_Regexp
-{
+struct js_Regexp {
 	void *prog;
 	char *source;
 	unsigned short flags;
 	unsigned short last;
 };
 
-struct js_Object
-{
+struct js_Object {
 	enum js_Class type;
 	int extensible;
 	js_Property *properties;
@@ -417,8 +410,7 @@ struct js_Object
 	int gcmark;
 };
 
-struct js_Property
-{
+struct js_Property {
 	js_Property *left, *right;
 	int level;
 	int atts;
@@ -428,14 +420,12 @@ struct js_Property
 	char name[1];
 };
 
-struct js_Iterator
-{
+struct js_Iterator {
 	js_Iterator *next;
 	char name[1];
 };
 
-struct js_Environment
-{
+struct js_Environment {
 	js_Environment *outer;
 	js_Object *variables;
 
@@ -490,8 +480,7 @@ void jsV_growarray(js_State *J, js_Object *obj);
 
 /* Lexer */
 
-enum
-{
+enum {
 	TK_IDENTIFIER = 256,
 	TK_NUMBER,
 	TK_STRING,
@@ -569,8 +558,7 @@ int jsY_lexjson(js_State *J);
 
 /* Parser */
 
-enum js_AstType
-{
+enum js_AstType {
 	AST_LIST,
 	AST_FUNDEC,
 	AST_IDENTIFIER,
@@ -684,15 +672,13 @@ enum js_AstType
 
 typedef struct js_JumpList js_JumpList;
 
-struct js_JumpList
-{
+struct js_JumpList {
 	enum js_AstType type;
 	int inst;
 	js_JumpList *next;
 };
 
-struct js_Ast
-{
+struct js_Ast {
 	enum js_AstType type;
 	int line;
 	js_Ast *parent, *a, *b, *c, *d;
@@ -709,8 +695,7 @@ void jsP_freeparse(js_State *J);
 
 /* Compiler */
 
-enum js_OpCode
-{
+enum js_OpCode {
 	OP_POP,		/* A -- */
 	OP_DUP,		/* A -- A A */
 	OP_DUP2,	/* A B -- A B A B */
@@ -817,8 +802,7 @@ enum js_OpCode
 	OP_RETURN,
 };
 
-struct js_Function
-{
+struct js_Function {
 	const char *name;
 	int script;
 	int lightweight;

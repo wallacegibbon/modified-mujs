@@ -944,8 +944,7 @@ static void js_tryppfile(js_State *J, const char *file)
 	js_endtry(J);
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	js_State *J;
 	int i;

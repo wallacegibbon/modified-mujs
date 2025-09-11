@@ -1,7 +1,8 @@
 #include "jsi.h"
 #include "regexp.h"
 
-static char *escaperegexp(js_State *J, const char *pattern) {
+static char *escaperegexp(js_State *J, const char *pattern)
+{
 	char *copy, *p;
 	const char *s;
 	int n = 0;

@@ -21,8 +21,7 @@
 
 typedef unsigned char uchar;
 
-enum
-{
+enum {
 	Bit1	= 7,
 	Bitx	= 6,
 	Bit2	= 5,
@@ -48,8 +47,7 @@ enum
 	Bad	= Runeerror
 };
 
-int
-chartorune(Rune *rune, const char *str)
+int chartorune(Rune *rune, const char *str)
 {
 	int c, c1, c2, c3;
 	int l;
@@ -129,8 +127,7 @@ bad:
 	return 1;
 }
 
-int
-runetochar(char *str, const Rune *rune)
+int runetochar(char *str, const Rune *rune)
 {
 	int c = *rune;
 
@@ -184,8 +181,7 @@ runetochar(char *str, const Rune *rune)
 	return 4;
 }
 
-int
-runelen(int c)
+int runelen(int c)
 {
 	Rune rune;
 	char str[10];
@@ -194,8 +190,7 @@ runelen(int c)
 	return runetochar(str, &rune);
 }
 
-static const Rune *
-ucd_bsearch(Rune c, const Rune *t, int n, int ne)
+static const Rune *ucd_bsearch(Rune c, const Rune *t, int n, int ne)
 {
 	const Rune *p;
 	int m;
@@ -214,8 +209,7 @@ ucd_bsearch(Rune c, const Rune *t, int n, int ne)
 	return 0;
 }
 
-Rune
-tolowerrune(Rune c)
+Rune tolowerrune(Rune c)
 {
 	const Rune *p;
 
@@ -228,8 +222,7 @@ tolowerrune(Rune c)
 	return c;
 }
 
-Rune
-toupperrune(Rune c)
+Rune toupperrune(Rune c)
 {
 	const Rune *p;
 
@@ -242,8 +235,7 @@ toupperrune(Rune c)
 	return c;
 }
 
-int
-islowerrune(Rune c)
+int islowerrune(Rune c)
 {
 	const Rune *p;
 
@@ -256,8 +248,7 @@ islowerrune(Rune c)
 	return 0;
 }
 
-int
-isupperrune(Rune c)
+int isupperrune(Rune c)
 {
 	const Rune *p;
 
@@ -270,8 +261,7 @@ isupperrune(Rune c)
 	return 0;
 }
 
-int
-isalpharune(Rune c)
+int isalpharune(Rune c)
 {
 	const Rune *p;
 
@@ -284,8 +274,7 @@ isalpharune(Rune c)
 	return 0;
 }
 
-const Rune *
-tolowerrune_full(Rune c)
+const Rune *tolowerrune_full(Rune c)
 {
 	const Rune *p;
 	p = ucd_bsearch(c, ucd_tolower_full, nelem(ucd_tolower_full)/4, 4);
@@ -294,8 +283,7 @@ tolowerrune_full(Rune c)
 	return NULL;
 }
 
-const Rune *
-toupperrune_full(Rune c)
+const Rune *toupperrune_full(Rune c)
 {
 	const Rune *p;
 	p = ucd_bsearch(c, ucd_toupper_full, nelem(ucd_toupper_full)/5, 5);

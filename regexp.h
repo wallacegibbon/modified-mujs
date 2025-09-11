@@ -11,9 +11,10 @@ typedef struct Reprog Reprog;
 typedef struct Resub Resub;
 
 Reprog *regcompx(void *(*alloc)(void *ctx, void *p, int n), void *ctx,
-	const char *pattern, int cflags, const char **errorp);
+		const char *pattern, int cflags, const char **errorp);
+
 void regfreex(void *(*alloc)(void *ctx, void *p, int n), void *ctx,
-	Reprog *prog);
+		Reprog *prog);
 
 Reprog *regcomp(const char *pattern, int cflags, const char **errorp);
 int regexec(Reprog *prog, const char *string, Resub *sub, int eflags);
@@ -28,9 +29,10 @@ enum {
 	REG_NOTBOL = 4,
 };
 
-/* If you redefine REG_MAXSUB, you must make sure both the calling
- * code and the regexp.c compilation unit use the same value!
- */
+/*
+If you redefine REG_MAXSUB, you must make sure both the calling code and the
+regexp.c compilation unit use the same value!
+*/
 #ifndef REG_MAXSUB
 #define REG_MAXSUB 16
 #endif

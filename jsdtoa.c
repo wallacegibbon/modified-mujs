@@ -20,8 +20,7 @@ typedef unsigned __int64 uint64_t;
 /*
  * format exponent like sprintf(p, "e%+d", e)
  */
-void
-js_fmtexp(char *p, int e)
+void js_fmtexp(char *p, int e)
 {
 	char se[9];
 	int i;
@@ -498,8 +497,7 @@ static void digit_gen(diy_fp_t Mp, diy_fp_t delta, char* buffer, int* len, int* 
 	*K += kappa;
 }
 
-int
-js_grisu2(double v, char *buffer, int *K)
+int js_grisu2(double v, char *buffer, int *K)
 {
 	int length, mk;
 	diy_fp_t w_m, w_p, c_mk, Wp, Wm, delta;
@@ -559,8 +557,7 @@ static double powersOf10[] = {
  * The "E" may actually be an "e". E and X may both be omitted (but not just
  * one).
  */
-double
-js_strtod(const char *string, char **endPtr)
+double js_strtod(const char *string, char **endPtr)
 {
 	int sign, expSign = FALSE;
 	double fraction, dblExp, *d;
