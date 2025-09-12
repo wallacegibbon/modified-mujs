@@ -1,8 +1,16 @@
 #include "jsi.h"
 #include "utf.h"
 
-#define JSV_ISSTRING(v) (v->t.type==JS_TSHRSTR || v->t.type==JS_TMEMSTR || v->t.type==JS_TLITSTR)
-#define JSV_TOSTRING(v) (v->t.type==JS_TSHRSTR ? v->u.shrstr : v->t.type==JS_TLITSTR ? v->u.litstr : v->t.type==JS_TMEMSTR ? v->u.memstr->p : "")
+#define JSV_ISSTRING(v)						\
+	(v->t.type==JS_TSHRSTR || v->t.type==JS_TMEMSTR ||	\
+	v->t.type==JS_TLITSTR)
+
+#define JSV_TOSTRING(v)						\
+	(v->t.type==JS_TSHRSTR					\
+	? v->u.shrstr						\
+	: v->t.type==JS_TLITSTR					\
+		? v->u.litstr					\
+		: v->t.type==JS_TMEMSTR ? v->u.memstr->p : "")
 
 double
 js_strtol(const char *s, char **p, int base)
@@ -490,7 +498,8 @@ js_newfunction(js_State *J, js_Function *fun, js_Environment *scope)
 	js_pushobject(J, obj);
 	{
 		js_pushnumber(J, fun->numparams);
-		js_defproperty(J, -2, "length", JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+		js_defproperty(J, -2, "length",
+				JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 		js_newobject(J);
 		{
 			js_copy(J, -2);
@@ -510,7 +519,8 @@ js_newscript(js_State *J, js_Function *fun, js_Environment *scope)
 }
 
 void
-js_newcfunctionx(js_State *J, js_CFunction cfun, const char *name, int length, void *data, js_Finalize finalize)
+js_newcfunctionx(js_State *J, js_CFunction cfun, const char *name, int length,
+		void *data, js_Finalize finalize)
 {
 	js_Object *obj;
 
@@ -533,7 +543,8 @@ js_newcfunctionx(js_State *J, js_CFunction cfun, const char *name, int length, v
 	js_pushobject(J, obj);
 	{
 		js_pushnumber(J, length);
-		js_defproperty(J, -2, "length", JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+		js_defproperty(J, -2, "length",
+				JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 		js_newobject(J);
 		{
 			js_copy(J, -2);
@@ -551,7 +562,8 @@ js_newcfunction(js_State *J, js_CFunction cfun, const char *name, int length)
 
 /* prototype -- constructor */
 void
-js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon, const char *name, int length)
+js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon,
+		const char *name, int length)
 {
 	js_Object *obj = jsV_newobject(J, JS_CCFUNCTION, J->Function_prototype);
 	obj->u.c.name = name;
@@ -561,7 +573,8 @@ js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon, const char
 	js_pushobject(J, obj); /* proto obj */
 	{
 		js_pushnumber(J, length);
-		js_defproperty(J, -2, "length", JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+		js_defproperty(J, -2, "length",
+				JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 		js_rot2(J); /* obj proto */
 		js_copy(J, -2); /* obj proto obj */
 		js_defproperty(J, -2, "constructor", JS_DONTENUM);
@@ -570,7 +583,8 @@ js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon, const char
 }
 
 void
-js_newuserdatax(js_State *J, const char *tag, void *data, js_HasProperty has, js_Put put, js_Delete delete, js_Finalize finalize)
+js_newuserdatax(js_State *J, const char *tag, void *data, js_HasProperty has,
+		js_Put put, js_Delete delete, js_Finalize finalize)
 {
 	js_Object *prototype = NULL;
 	js_Object *obj;
@@ -717,11 +731,13 @@ retry:
 		y->u.number = y->u.boolean ? 1 : 0;
 		goto retry;
 	}
-	if ((JSV_ISSTRING(x) || x->t.type == JS_TNUMBER) && y->t.type == JS_TOBJECT) {
+	if ((JSV_ISSTRING(x) || x->t.type == JS_TNUMBER) &&
+			y->t.type == JS_TOBJECT) {
 		jsV_toprimitive(J, y, JS_HNONE);
 		goto retry;
 	}
-	if (x->t.type == JS_TOBJECT && (JSV_ISSTRING(y) || y->t.type == JS_TNUMBER)) {
+	if (x->t.type == JS_TOBJECT &&
+			(JSV_ISSTRING(y) || y->t.type == JS_TNUMBER)) {
 		jsV_toprimitive(J, x, JS_HNONE);
 		goto retry;
 	}

@@ -94,9 +94,11 @@ jsG_markproperty(js_State *J, int mark, js_Property *node)
 	if (node->left->level) jsG_markproperty(J, mark, node->left);
 	if (node->right->level) jsG_markproperty(J, mark, node->right);
 
-	if (node->value.t.type == JS_TMEMSTR && node->value.u.memstr->gcmark != mark)
+	if (node->value.t.type == JS_TMEMSTR &&
+			node->value.u.memstr->gcmark != mark)
 		node->value.u.memstr->gcmark = mark;
-	if (node->value.t.type == JS_TOBJECT && node->value.u.object->gcmark != mark)
+	if (node->value.t.type == JS_TOBJECT &&
+			node->value.u.object->gcmark != mark)
 		jsG_markobject(J, mark, node->value.u.object);
 	if (node->getter && node->getter->gcmark != mark)
 		jsG_markobject(J, mark, node->getter);
@@ -116,9 +118,11 @@ jsG_scanobject(js_State *J, int mark, js_Object *obj)
 		int i;
 		for (i = 0; i < obj->u.a.flat_length; ++i) {
 			js_Value *v = &obj->u.a.array[i];
-			if (v->t.type == JS_TMEMSTR && v->u.memstr->gcmark != mark)
+			if (v->t.type == JS_TMEMSTR &&
+					v->u.memstr->gcmark != mark)
 				v->u.memstr->gcmark = mark;
-			if (v->t.type == JS_TOBJECT && v->u.object->gcmark != mark)
+			if (v->t.type == JS_TOBJECT &&
+					v->u.object->gcmark != mark)
 				jsG_markobject(J, mark, v->u.object);
 		}
 	}
@@ -264,7 +268,8 @@ js_gc(js_State *J, int report)
 	if (report) {
 		char buf[256];
 		snprintf(buf, sizeof buf, "garbage collected (%d%%): %d/%d envs, %d/%d funs, %d/%d objs, %d/%d props, %d/%d strs",
-			100*gtot/ntot, genv, nenv, gfun, nfun, gobj, nobj, gprop, nprop, gstr, nstr);
+			100 * gtot / ntot, genv, nenv, gfun, nfun, gobj, nobj,
+			gprop, nprop, gstr, nstr);
 		js_report(J, buf);
 	}
 }

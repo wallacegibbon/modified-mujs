@@ -26,7 +26,8 @@ static js_Property sentinel = {
 	NULL, NULL, ""
 };
 
-static js_Property *newproperty(js_State *J, js_Object *obj, const char *name)
+static js_Property*
+newproperty(js_State *J, js_Object *obj, const char *name)
 {
 	int n = strlen(name) + 1;
 	js_Property *node = js_malloc(J, offsetof(js_Property, name) + n);

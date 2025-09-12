@@ -205,11 +205,13 @@ Fp_bind(js_State *J)
 
 	/* target function */
 	js_copy(J, 0);
-	js_defproperty(J, -2, "__TargetFunction__", JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+	js_defproperty(J, -2, "__TargetFunction__",
+			JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 
 	/* bound this */
 	js_copy(J, 1);
-	js_defproperty(J, -2, "__BoundThis__", JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+	js_defproperty(J, -2, "__BoundThis__",
+			JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 
 	/* bound arguments */
 	js_newarray(J);
@@ -217,7 +219,8 @@ Fp_bind(js_State *J)
 		js_copy(J, i);
 		js_setindex(J, -2, i - 2);
 	}
-	js_defproperty(J, -2, "__BoundArguments__", JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+	js_defproperty(J, -2, "__BoundArguments__",
+			JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 }
 
 void

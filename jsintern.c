@@ -48,7 +48,8 @@ jsS_newstringnode(js_State *J, const char *string, const char **result)
 	size_t n = strlen(string);
 	if (n > JS_STRLIMIT)
 		js_rangeerror(J, "invalid string length");
-	js_StringNode *node = js_malloc(J, soffsetof(js_StringNode, string) + n + 1);
+	js_StringNode *node = js_malloc(J,
+			soffsetof(js_StringNode, string) + n + 1);
 	node->left = node->right = &jsS_sentinel;
 	node->level = 1;
 	memcpy(node->string, string, n + 1);
@@ -81,14 +82,16 @@ jsS_split(js_StringNode *node)
 }
 
 static js_StringNode*
-jsS_insert(js_State *J, js_StringNode *node, const char *string, const char **result)
+jsS_insert(js_State *J, js_StringNode *node, const char *string,
+		const char **result)
 {
 	if (node != &jsS_sentinel) {
 		int c = strcmp(string, node->string);
 		if (c < 0)
 			node->left = jsS_insert(J, node->left, string, result);
 		else if (c > 0)
-			node->right = jsS_insert(J, node->right, string, result);
+			node->right = jsS_insert(J, node->right, string,
+					result);
 		else
 			return *result = node->string, node;
 		node = jsS_skew(node);

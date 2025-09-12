@@ -7,24 +7,24 @@
 #include "regexp.h"
 #include "utf.h"
 
-#define emit regemit
-#define next regnext
-#define accept regaccept
+#define emit			regemit
+#define next			regnext
+#define accept			regaccept
 
-#define nelem(a) (int)(sizeof (a) / sizeof (a)[0])
+#define nelem(a)		(int)(sizeof (a) / sizeof (a)[0])
 
-#define REPINF 255
+#define REPINF			255
 #ifndef REG_MAXPROG
-#define REG_MAXPROG (32 << 10)
+#define REG_MAXPROG		(32 << 10)
 #endif
 #ifndef REG_MAXREC
-#define REG_MAXREC 1024
+#define REG_MAXREC		1024
 #endif
 #ifndef REG_MAXSPAN
-#define REG_MAXSPAN 64
+#define REG_MAXSPAN		64
 #endif
 #ifndef REG_MAXCLASS
-#define REG_MAXCLASS 128
+#define REG_MAXCLASS		128
 #endif
 
 typedef struct Reclass Reclass;
