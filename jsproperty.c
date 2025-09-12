@@ -3,20 +3,24 @@
 #include <assert.h>
 
 /*
-	Use an AA-tree to quickly look up properties in objects:
+Use an AA-tree to quickly look up properties in objects:
 
-	The level of every leaf node is one.
-	The level of every left child is one less than its parent.
-	The level of every right child is equal or one less than its parent.
-	The level of every right grandchild is less than its grandparent.
-	Every node of level greater than one has two children.
+The level of every leaf node is one.
+The level of every left child is one less than its parent.
+The level of every right child is equal or one less than its parent.
+The level of every right grandchild is less than its grandparent.
+Every node of level greater than one has two children.
 
-	A link where the child's level is equal to that of its parent is called a horizontal link.
-	Individual right horizontal links are allowed, but consecutive ones are forbidden.
-	Left horizontal links are forbidden.
+A link where the child's level is equal to that of its parent is called a
+horizontal link.
 
-	skew() fixes left horizontal links.
-	split() fixes consecutive right horizontal links.
+Individual right horizontal links are allowed, but consecutive ones are
+forbidden.
+
+Left horizontal links are forbidden.
+
+skew() fixes left horizontal links.
+split() fixes consecutive right horizontal links.
 */
 
 static js_Property sentinel = {
@@ -85,7 +89,8 @@ split(js_Property *node)
 }
 
 static js_Property*
-insert(js_State *J, js_Object *obj, js_Property *node, const char *name, js_Property **result)
+insert(js_State *J, js_Object *obj, js_Property *node, const char *name,
+		js_Property **result)
 {
 	if (node != &sentinel) {
 		int c = strcmp(name, node->name);
@@ -118,10 +123,12 @@ unlinkproperty(js_Property *node, const char *name, js_Property **garbage)
 		if (c < 0) {
 			node->left = unlinkproperty(node->left, name, garbage);
 		} else if (c > 0) {
-			node->right = unlinkproperty(node->right, name, garbage);
+			node->right = unlinkproperty(node->right, name,
+					garbage);
 		} else {
 			*garbage = node;
-			if (node->left == &sentinel && node->right == &sentinel) {
+			if (node->left == &sentinel &&
+					node->right == &sentinel) {
 				return &sentinel;
 			}
 			else if (node->left == &sentinel) {
@@ -146,7 +153,8 @@ unlinkproperty(js_Property *node, const char *name, js_Property **garbage)
 			}
 		}
 
-		if (node->left->level < node->level - 1 || node->right->level < node->level - 1)
+		if (node->left->level < node->level - 1 ||
+				node->right->level < node->level - 1)
 		{
 			if (node->right->level > --node->level)
 				node->right->level = node->level;
@@ -302,7 +310,8 @@ jsV_newiterator(js_State *J, js_Object *obj, int own)
 	if (own) {
 		io->u.iter.head = NULL;
 		if (obj->properties != &sentinel)
-			io->u.iter.head = itwalk(J, io->u.iter.head, obj->properties, NULL);
+			io->u.iter.head = itwalk(J, io->u.iter.head,
+						obj->properties, NULL);
 	} else {
 		io->u.iter.head = itflatten(J, obj);
 	}

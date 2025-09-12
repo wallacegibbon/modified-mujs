@@ -46,7 +46,8 @@ jsonexpect(js_State *J, int t)
 {
 	if (!jsonaccept(J, t))
 		js_syntaxerror(J, "JSON: unexpected token: %s (expected %s)",
-				jsY_tokenstring(J->lookahead), jsY_tokenstring(t));
+				jsY_tokenstring(J->lookahead),
+				jsY_tokenstring(t));
 }
 
 static void
@@ -73,7 +74,8 @@ jsonvalue(js_State *J)
 			return;
 		do {
 			if (J->lookahead != TK_STRING)
-				js_syntaxerror(J, "JSON: unexpected token: %s (expected string)", jsY_tokenstring(J->lookahead));
+				js_syntaxerror(J, "JSON: unexpected token: %s (expected string)",
+						jsY_tokenstring(J->lookahead));
 			name = J->text;
 			jsonnext(J);
 			jsonexpect(J, ':');
@@ -112,7 +114,8 @@ jsonvalue(js_State *J)
 		break;
 
 	default:
-		js_syntaxerror(J, "JSON: unexpected token: %s", jsY_tokenstring(J->lookahead));
+		js_syntaxerror(J, "JSON: unexpected token: %s",
+				jsY_tokenstring(J->lookahead));
 	}
 }
 
@@ -240,7 +243,8 @@ fmtindent(js_State *J, js_Buffer **sb, const char *gap, int level)
 		js_puts(J, sb, gap);
 }
 
-static int fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *gap, int level);
+static int	fmtvalue(js_State *J, js_Buffer **sb, const char *key,
+			const char *gap, int level);
 
 static int
 filterprop(js_State *J, const char *key)
@@ -253,7 +257,8 @@ filterprop(js_State *J, const char *key)
 		for (i = 0; i < n && !found; ++i) {
 			js_getindex(J, 2, i);
 			if (js_isstring(J, -1) || js_isnumber(J, -1) ||
-				js_isstringobject(J, -1) || js_isnumberobject(J, -1))
+					js_isstringobject(J, -1) ||
+					js_isnumberobject(J, -1))
 				found = !strcmp(key, js_tostring(J, -1));
 			js_pop(J, 1);
 		}
@@ -263,7 +268,8 @@ filterprop(js_State *J, const char *key)
 }
 
 static void
-fmtobject(js_State *J, js_Buffer **sb, js_Object *obj, const char *gap, int level)
+fmtobject(js_State *J, js_Buffer **sb, js_Object *obj, const char *gap,
+		int level)
 {
 	const char *key;
 	int save;
@@ -325,7 +331,8 @@ fmtarray(js_State *J, js_Buffer **sb, const char *gap, int level)
 }
 
 static int
-fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *gap, int level)
+fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *gap,
+		int level)
 {
 	/* replacer/property-list is in 2 */
 	/* holder is in -1 */
@@ -357,11 +364,21 @@ fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *gap, int leve
 	if (js_isobject(J, -1) && !js_iscallable(J, -1)) {
 		js_Object *obj = js_toobject(J, -1);
 		switch (obj->type) {
-		case JS_CNUMBER: fmtnum(J, sb, obj->u.number); break;
-		case JS_CSTRING: fmtstr(J, sb, obj->u.s.string); break;
-		case JS_CBOOLEAN: js_puts(J, sb, obj->u.boolean ? "true" : "false"); break;
-		case JS_CARRAY: fmtarray(J, sb, gap, level); break;
-		default: fmtobject(J, sb, obj, gap, level); break;
+		case JS_CNUMBER:
+			fmtnum(J, sb, obj->u.number);
+			break;
+		case JS_CSTRING:
+			fmtstr(J, sb, obj->u.s.string);
+			break;
+		case JS_CBOOLEAN:
+			js_puts(J, sb, obj->u.boolean ? "true" : "false");
+			break;
+		case JS_CARRAY:
+			fmtarray(J, sb, gap, level);
+			break;
+		default:
+			fmtobject(J, sb, obj, gap, level);
+			break;
 		}
 	}
 	else if (js_isboolean(J, -1))
@@ -386,7 +403,10 @@ JSON_stringify(js_State *J)
 {
 	js_Buffer *sb = NULL;
 	char buf[12];
-	/* NOTE: volatile to silence GCC warning about longjmp clobbering a variable */
+	/*
+	NOTE:
+	volatile to silence GCC warning about longjmp clobbering a variable.
+	*/
 	const char * volatile gap;
 	const char *s;
 	int n;

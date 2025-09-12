@@ -53,7 +53,15 @@ jsW_snprintf(char *str, size_t size, const char *fmt, ...)
 #define isnan(x)	_isnan(x)
 #define isinf(x)	(!_finite(x))
 #define isfinite(x)	_finite(x)
-static __inline int signbit(double x) { __int64 i; memcpy(&i, &x, 8); return i>>63; }
+
+static __inline int
+signbit(double x)
+{
+	__int64 i;
+	memcpy(&i, &x, 8);
+	return i>>63;
+}
+
 #define INFINITY	(DBL_MAX+DBL_MAX)
 #define NAN		(INFINITY-INFINITY)
 #endif
@@ -90,18 +98,18 @@ typedef struct js_StackTrace js_StackTrace;
 #endif
 
 #ifndef JS_ARRAYLIMIT
-#define JS_ARRAYLIMIT	(1<<26)	/* limit arrays to 64M entries (1G of flat array data) */
+#define JS_ARRAYLIMIT	(1<<26)	/* 64M entries (1G of flat array data) */
 #endif
 
 #ifndef JS_GCFACTOR
 /*
- * GC will try to trigger when memory usage is this value times the minimum
- * needed memory. E.g. if there are 100 remaining objects after GC and this
- * value is 5.0, then the next GC will trigger when the overall number is 500.
- * I.e. a value of 5.0 aims at 80% garbage, 20% remain-used on each GC.
- * The bigger the value the less impact GC has on overall performance, but more
- * memory is used and individual GC pauses are longer (but fewer).
- */
+GC will try to trigger when memory usage is this value times the minimum needed
+memory. E.g. if there are 100 remaining objects after GC and this value is 5.0,
+then the next GC will trigger when the overall number is 500.
+i.e. a value of 5.0 aims at 80% garbage, 20% remain-used on each GC.
+The bigger the value the less impact GC has on overall performance, but more
+memory is used and individual GC pauses are longer (but fewer).
+*/
 #define JS_GCFACTOR	5.0	/* memory overhead factor >= 1.0 */
 #endif
 
@@ -113,7 +121,9 @@ typedef struct js_StackTrace js_StackTrace;
 #define JS_STRLIMIT	(1<<28)	/* max string length */
 #endif
 
-/* instruction size -- change to int if you get integer overflow syntax errors */
+/*
+instruction size -- change to int if you get integer overflow syntax errors.
+*/
 
 #ifdef JS_INSTRUCTION
 typedef JS_INSTRUCTION	js_Instruction;
@@ -139,7 +149,8 @@ double	js_strtol(const char *s, char **ep, int radix);
 /* Private stack functions */
 
 void	js_newarguments(js_State *J);
-void	js_newfunction(js_State *J, js_Function *function, js_Environment *scope);
+void	js_newfunction(js_State *J, js_Function *function,
+			js_Environment *scope);
 void	js_newscript(js_State *J, js_Function *function, js_Environment *scope);
 void	js_loadeval(js_State *J, const char *filename, const char *source);
 
@@ -324,10 +335,10 @@ enum js_Class {
 };
 
 /*
-	Short strings abuse the js_Value struct. By putting the type tag in the
-	last byte, and using 0 as the tag for short strings, we can use the
-	entire js_Value as string storage by letting the type tag serve double
-	purpose as the string zero terminator.
+Short strings abuse the js_Value struct. By putting the type tag in the last
+byte, and using 0 as the tag for short strings, we can use the entire js_Value
+as string storage by letting the type tag serve double purpose as the string
+zero terminator.
 */
 
 union js_Value {
@@ -435,7 +446,9 @@ struct js_Environment {
 };
 
 /* jsrun.c */
-js_Environment*	jsR_newenvironment(js_State *J, js_Object *variables, js_Environment *outer);
+js_Environment*	jsR_newenvironment(js_State *J, js_Object *variables,
+			js_Environment *outer);
+
 js_String*	jsV_newmemstring(js_State *J, const char *s, int n);
 js_Value*	js_tovalue(js_State *J, int idx);
 void	js_toprimitive(js_State *J, int idx, int hint);
@@ -463,9 +476,12 @@ const char*	jsV_numbertostring(js_State *J, char buf[32], double number);
 double	jsV_stringtonumber(js_State *J, const char *string);
 
 /* jsproperty.c */
-js_Object*	jsV_newobject(js_State *J, enum js_Class type, js_Object *prototype);
-js_Property*	jsV_getownproperty(js_State *J, js_Object *obj, const char *name);
-js_Property*	jsV_getpropertyx(js_State *J, js_Object *obj, const char *name, int *own);
+js_Object*	jsV_newobject(js_State *J, enum js_Class type,
+			js_Object *prototype);
+js_Property*	jsV_getownproperty(js_State *J, js_Object *obj,
+			const char *name);
+js_Property*	jsV_getpropertyx(js_State *J, js_Object *obj,
+			const char *name, int *own);
 js_Property*	jsV_getproperty(js_State *J, js_Object *obj, const char *name);
 js_Property*	jsV_setproperty(js_State *J, js_Object *obj, const char *name);
 js_Property*	jsV_nextproperty(js_State *J, js_Object *obj, const char *name);
@@ -690,7 +706,8 @@ struct js_Ast {
 	js_Ast *gcnext; /* next in alloc list */
 };
 
-js_Ast*	jsP_parsefunction(js_State *J, const char *filename, const char *params, const char *body);
+js_Ast*	jsP_parsefunction(js_State *J, const char *filename,
+		const char *params, const char *body);
 js_Ast*	jsP_parse(js_State *J, const char *filename, const char *source);
 void	jsP_freeparse(js_State *J);
 
@@ -828,7 +845,8 @@ struct js_Function {
 };
 
 js_Function*	jsC_compilefunction(js_State *J, js_Ast *prog);
-js_Function*	jsC_compilescript(js_State *J, js_Ast *prog, int default_strict);
+js_Function*	jsC_compilescript(js_State *J, js_Ast *prog,
+			int default_strict);
 
 /* Builtins */
 

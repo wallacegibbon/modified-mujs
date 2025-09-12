@@ -496,17 +496,13 @@ js_newfunction(js_State *J, js_Function *fun, js_Environment *scope)
 	obj->u.f.function = fun;
 	obj->u.f.scope = scope;
 	js_pushobject(J, obj);
-	{
-		js_pushnumber(J, fun->numparams);
-		js_defproperty(J, -2, "length",
-				JS_READONLY | JS_DONTENUM | JS_DONTCONF);
-		js_newobject(J);
-		{
-			js_copy(J, -2);
-			js_defproperty(J, -2, "constructor", JS_DONTENUM);
-		}
-		js_defproperty(J, -2, "prototype", JS_DONTENUM | JS_DONTCONF);
-	}
+	js_pushnumber(J, fun->numparams);
+	js_defproperty(J, -2, "length",
+			JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+	js_newobject(J);
+	js_copy(J, -2);
+	js_defproperty(J, -2, "constructor", JS_DONTENUM);
+	js_defproperty(J, -2, "prototype", JS_DONTENUM | JS_DONTCONF);
 }
 
 void
@@ -539,19 +535,14 @@ js_newcfunctionx(js_State *J, js_CFunction cfun, const char *name, int length,
 	obj->u.c.finalize = finalize;
 
 	js_endtry(J);
-
 	js_pushobject(J, obj);
-	{
-		js_pushnumber(J, length);
-		js_defproperty(J, -2, "length",
-				JS_READONLY | JS_DONTENUM | JS_DONTCONF);
-		js_newobject(J);
-		{
-			js_copy(J, -2);
-			js_defproperty(J, -2, "constructor", JS_DONTENUM);
-		}
-		js_defproperty(J, -2, "prototype", JS_DONTENUM | JS_DONTCONF);
-	}
+	js_pushnumber(J, length);
+	js_defproperty(J, -2, "length",
+			JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+	js_newobject(J);
+	js_copy(J, -2);
+	js_defproperty(J, -2, "constructor", JS_DONTENUM);
+	js_defproperty(J, -2, "prototype", JS_DONTENUM | JS_DONTCONF);
 }
 
 void
@@ -571,15 +562,13 @@ js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon,
 	obj->u.c.constructor = ccon;
 	obj->u.c.length = length;
 	js_pushobject(J, obj); /* proto obj */
-	{
-		js_pushnumber(J, length);
-		js_defproperty(J, -2, "length",
-				JS_READONLY | JS_DONTENUM | JS_DONTCONF);
-		js_rot2(J); /* obj proto */
-		js_copy(J, -2); /* obj proto obj */
-		js_defproperty(J, -2, "constructor", JS_DONTENUM);
-		js_defproperty(J, -2, "prototype", JS_DONTENUM | JS_DONTCONF);
-	}
+	js_pushnumber(J, length);
+	js_defproperty(J, -2, "length",
+			JS_READONLY | JS_DONTENUM | JS_DONTCONF);
+	js_rot2(J); /* obj proto */
+	js_copy(J, -2); /* obj proto obj */
+	js_defproperty(J, -2, "constructor", JS_DONTENUM);
+	js_defproperty(J, -2, "prototype", JS_DONTENUM | JS_DONTCONF);
 }
 
 void

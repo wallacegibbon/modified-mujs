@@ -34,10 +34,10 @@ jsB_initboolean(js_State *J)
 	J->Boolean_prototype->u.boolean = 0;
 
 	js_pushobject(J, J->Boolean_prototype);
-	{
-		jsB_propf(J, "Boolean.prototype.toString", Bp_toString, 0);
-		jsB_propf(J, "Boolean.prototype.valueOf", Bp_valueOf, 0);
-	}
+
+	jsB_propf(J, "Boolean.prototype.toString", Bp_toString, 0);
+	jsB_propf(J, "Boolean.prototype.valueOf", Bp_valueOf, 0);
+
 	js_newcconstructor(J, jsB_Boolean, jsB_new_Boolean, "Boolean", 1);
 	js_defglobal(J, "Boolean", JS_DONTENUM);
 }

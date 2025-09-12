@@ -19,12 +19,15 @@ static js_Ast *memberexp(js_State *J);
 static js_Ast *statement(js_State *J);
 static js_Ast *funbody(js_State *J);
 
-JS_NORETURN static void jsP_error(js_State *J, const char *fmt, ...) JS_PRINTFLIKE(2,3);
+JS_NORETURN static void
+jsP_error(js_State *J, const char *fmt, ...) JS_PRINTFLIKE(2,3);
 
-#define INCREC() if (++J->astdepth > JS_ASTLIMIT) jsP_error(J, "too much recursion")
-#define DECREC() --J->astdepth
-#define SAVEREC() int SAVE=J->astdepth
-#define POPREC() J->astdepth=SAVE
+#define INCREC()	\
+	if (++J->astdepth > JS_ASTLIMIT) jsP_error(J, "too much recursion")
+
+#define DECREC()	--J->astdepth
+#define SAVEREC()	int SAVE = J->astdepth
+#define POPREC()	J->astdepth=SAVE
 
 static void
 jsP_error(js_State *J, const char *fmt, ...)
@@ -55,12 +58,14 @@ jsP_warning(js_State *J, const char *fmt, ...)
 	vsnprintf(msg, sizeof msg, fmt, ap);
 	va_end(ap);
 
-	snprintf(buf, sizeof buf, "%s:%d: warning: %s", J->filename, J->lexline, msg);
+	snprintf(buf, sizeof buf, "%s:%d: warning: %s", J->filename,
+			J->lexline, msg);
 	js_report(J, buf);
 }
 
 static js_Ast*
-jsP_newnode(js_State *J, enum js_AstType type, int line, js_Ast *a, js_Ast *b, js_Ast *c, js_Ast *d)
+jsP_newnode(js_State *J, enum js_AstType type, int line, js_Ast *a, js_Ast *b,
+		js_Ast *c, js_Ast *d)
 {
 	js_Ast *node = js_malloc(J, sizeof *node);
 
@@ -147,9 +152,13 @@ jsP_next(js_State *J)
 	J->lookahead = jsY_lex(J);
 }
 
-#define jsP_accept(J,x) (J->lookahead == x ? (jsP_next(J), 1) : 0)
+#define jsP_accept(J, x)	\
+	(J->lookahead == x ? (jsP_next(J), 1) : 0)
 
-#define jsP_expect(J,x) if (!jsP_accept(J, x)) jsP_error(J, "unexpected token: %s (expected %s)", jsY_tokenstring(J->lookahead), jsY_tokenstring(x))
+#define jsP_expect(J, x)	\
+	if (!jsP_accept(J, x))	\
+		jsP_error(J, "unexpected token: %s (expected %s)", \
+			jsY_tokenstring(J->lookahead), jsY_tokenstring(x))
 
 static void
 semicolon(js_State *J)
@@ -160,7 +169,8 @@ semicolon(js_State *J)
 	}
 	if (J->newline || J->lookahead == '}' || J->lookahead == 0)
 		return;
-	jsP_error(J, "unexpected token: %s (expected ';')", jsY_tokenstring(J->lookahead));
+	jsP_error(J, "unexpected token: %s (expected ';')",
+			jsY_tokenstring(J->lookahead));
 }
 
 /* Literals */
@@ -174,7 +184,8 @@ identifier(js_State *J)
 		jsP_next(J);
 		return a;
 	}
-	jsP_error(J, "unexpected token: %s (expected identifier)", jsY_tokenstring(J->lookahead));
+	jsP_error(J, "unexpected token: %s (expected identifier)",
+			jsY_tokenstring(J->lookahead));
 }
 
 static js_Ast*
@@ -193,7 +204,8 @@ identifiername(js_State *J)
 		jsP_next(J);
 		return a;
 	}
-	jsP_error(J, "unexpected token: %s (expected identifier or keyword)", jsY_tokenstring(J->lookahead));
+	jsP_error(J, "unexpected token: %s (expected identifier or keyword)",
+			jsY_tokenstring(J->lookahead));
 }
 
 static js_Ast*
@@ -363,10 +375,14 @@ primary(js_State *J)
 		return a;
 	}
 
-	if (jsP_accept(J, TK_THIS)) return EXP0(THIS);
-	if (jsP_accept(J, TK_NULL)) return EXP0(NULL);
-	if (jsP_accept(J, TK_TRUE)) return EXP0(TRUE);
-	if (jsP_accept(J, TK_FALSE)) return EXP0(FALSE);
+	if (jsP_accept(J, TK_THIS))
+		return EXP0(THIS);
+	if (jsP_accept(J, TK_NULL))
+		return EXP0(NULL);
+	if (jsP_accept(J, TK_TRUE))
+		return EXP0(TRUE);
+	if (jsP_accept(J, TK_FALSE))
+		return EXP0(FALSE);
 	if (jsP_accept(J, '{')) {
 		a = EXP1(OBJECT, objectliteral(J));
 		jsP_expect(J, '}');
@@ -383,7 +399,8 @@ primary(js_State *J)
 		return a;
 	}
 
-	jsP_error(J, "unexpected token in expression: %s", jsY_tokenstring(J->lookahead));
+	jsP_error(J, "unexpected token in expression: %s",
+			jsY_tokenstring(J->lookahead));
 }
 
 static js_Ast*
@@ -430,8 +447,15 @@ memberexp(js_State *J)
 loop:
 	INCREC();
 	line = J->lexline;
-	if (jsP_accept(J, '.')) { a = EXP2(MEMBER, a, identifiername(J)); goto loop; }
-	if (jsP_accept(J, '[')) { a = EXP2(INDEX, a, expression(J, 0)); jsP_expect(J, ']'); goto loop; }
+	if (jsP_accept(J, '.')) {
+		a = EXP2(MEMBER, a, identifiername(J));
+		goto loop;
+	}
+	if (jsP_accept(J, '[')) {
+		a = EXP2(INDEX, a, expression(J, 0));
+		jsP_expect(J, ']');
+		goto loop;
+	}
 	POPREC();
 	return a;
 }
@@ -445,9 +469,20 @@ callexp(js_State *J)
 loop:
 	INCREC();
 	line = J->lexline;
-	if (jsP_accept(J, '.')) { a = EXP2(MEMBER, a, identifiername(J)); goto loop; }
-	if (jsP_accept(J, '[')) { a = EXP2(INDEX, a, expression(J, 0)); jsP_expect(J, ']'); goto loop; }
-	if (jsP_accept(J, '(')) { a = EXP2(CALL, a, arguments(J)); jsP_expect(J, ')'); goto loop; }
+	if (jsP_accept(J, '.')) {
+		a = EXP2(MEMBER, a, identifiername(J));
+		goto loop;
+	}
+	if (jsP_accept(J, '[')) {
+		a = EXP2(INDEX, a, expression(J, 0));
+		jsP_expect(J, ']');
+		goto loop;
+	}
+	if (jsP_accept(J, '(')) {
+		a = EXP2(CALL, a, arguments(J));
+		jsP_expect(J, ')');
+		goto loop;
+	}
 	POPREC();
 	return a;
 }
@@ -457,8 +492,10 @@ postfix(js_State *J)
 {
 	js_Ast *a = callexp(J);
 	int line = J->lexline;
-	if (!J->newline && jsP_accept(J, TK_INC)) return EXP1(POSTINC, a);
-	if (!J->newline && jsP_accept(J, TK_DEC)) return EXP1(POSTDEC, a);
+	if (!J->newline && jsP_accept(J, TK_INC))
+		return EXP1(POSTINC, a);
+	if (!J->newline && jsP_accept(J, TK_DEC))
+		return EXP1(POSTDEC, a);
 	return a;
 }
 
@@ -468,16 +505,26 @@ unary(js_State *J)
 	js_Ast *a;
 	int line = J->lexline;
 	INCREC();
-	if (jsP_accept(J, TK_DELETE)) a = EXP1(DELETE, unary(J));
-	else if (jsP_accept(J, TK_VOID)) a = EXP1(VOID, unary(J));
-	else if (jsP_accept(J, TK_TYPEOF)) a = EXP1(TYPEOF, unary(J));
-	else if (jsP_accept(J, TK_INC)) a = EXP1(PREINC, unary(J));
-	else if (jsP_accept(J, TK_DEC)) a = EXP1(PREDEC, unary(J));
-	else if (jsP_accept(J, '+')) a = EXP1(POS, unary(J));
-	else if (jsP_accept(J, '-')) a = EXP1(NEG, unary(J));
-	else if (jsP_accept(J, '~')) a = EXP1(BITNOT, unary(J));
-	else if (jsP_accept(J, '!')) a = EXP1(LOGNOT, unary(J));
-	else a = postfix(J);
+	if (jsP_accept(J, TK_DELETE))
+		a = EXP1(DELETE, unary(J));
+	else if (jsP_accept(J, TK_VOID))
+		a = EXP1(VOID, unary(J));
+	else if (jsP_accept(J, TK_TYPEOF))
+		a = EXP1(TYPEOF, unary(J));
+	else if (jsP_accept(J, TK_INC))
+		a = EXP1(PREINC, unary(J));
+	else if (jsP_accept(J, TK_DEC))
+		a = EXP1(PREDEC, unary(J));
+	else if (jsP_accept(J, '+'))
+		a = EXP1(POS, unary(J));
+	else if (jsP_accept(J, '-'))
+		a = EXP1(NEG, unary(J));
+	else if (jsP_accept(J, '~'))
+		a = EXP1(BITNOT, unary(J));
+	else if (jsP_accept(J, '!'))
+		a = EXP1(LOGNOT, unary(J));
+	else
+		a = postfix(J);
 	DECREC();
 	return a;
 }
@@ -491,9 +538,18 @@ multiplicative(js_State *J)
 loop:
 	INCREC();
 	line = J->lexline;
-	if (jsP_accept(J, '*')) { a = EXP2(MUL, a, unary(J)); goto loop; }
-	if (jsP_accept(J, '/')) { a = EXP2(DIV, a, unary(J)); goto loop; }
-	if (jsP_accept(J, '%')) { a = EXP2(MOD, a, unary(J)); goto loop; }
+	if (jsP_accept(J, '*')) {
+		a = EXP2(MUL, a, unary(J));
+		goto loop;
+	}
+	if (jsP_accept(J, '/')) {
+		a = EXP2(DIV, a, unary(J));
+		goto loop;
+	}
+	if (jsP_accept(J, '%')) {
+		a = EXP2(MOD, a, unary(J));
+		goto loop;
+	}
 	POPREC();
 	return a;
 }
@@ -507,8 +563,14 @@ additive(js_State *J)
 loop:
 	INCREC();
 	line = J->lexline;
-	if (jsP_accept(J, '+')) { a = EXP2(ADD, a, multiplicative(J)); goto loop; }
-	if (jsP_accept(J, '-')) { a = EXP2(SUB, a, multiplicative(J)); goto loop; }
+	if (jsP_accept(J, '+')) {
+		a = EXP2(ADD, a, multiplicative(J));
+		goto loop;
+	}
+	if (jsP_accept(J, '-')) {
+		a = EXP2(SUB, a, multiplicative(J));
+		goto loop;
+	}
 	POPREC();
 	return a;
 }
@@ -522,9 +584,18 @@ shift(js_State *J)
 loop:
 	INCREC();
 	line = J->lexline;
-	if (jsP_accept(J, TK_SHL)) { a = EXP2(SHL, a, additive(J)); goto loop; }
-	if (jsP_accept(J, TK_SHR)) { a = EXP2(SHR, a, additive(J)); goto loop; }
-	if (jsP_accept(J, TK_USHR)) { a = EXP2(USHR, a, additive(J)); goto loop; }
+	if (jsP_accept(J, TK_SHL)) {
+		a = EXP2(SHL, a, additive(J));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_SHR)) {
+		a = EXP2(SHR, a, additive(J));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_USHR)) {
+		a = EXP2(USHR, a, additive(J));
+		goto loop;
+	}
 	POPREC();
 	return a;
 }
@@ -538,12 +609,30 @@ relational(js_State *J, int notin)
 loop:
 	INCREC();
 	line = J->lexline;
-	if (jsP_accept(J, '<')) { a = EXP2(LT, a, shift(J)); goto loop; }
-	if (jsP_accept(J, '>')) { a = EXP2(GT, a, shift(J)); goto loop; }
-	if (jsP_accept(J, TK_LE)) { a = EXP2(LE, a, shift(J)); goto loop; }
-	if (jsP_accept(J, TK_GE)) { a = EXP2(GE, a, shift(J)); goto loop; }
-	if (jsP_accept(J, TK_INSTANCEOF)) { a = EXP2(INSTANCEOF, a, shift(J)); goto loop; }
-	if (!notin && jsP_accept(J, TK_IN)) { a = EXP2(IN, a, shift(J)); goto loop; }
+	if (jsP_accept(J, '<')) {
+		a = EXP2(LT, a, shift(J));
+		goto loop;
+	}
+	if (jsP_accept(J, '>')) {
+		a = EXP2(GT, a, shift(J));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_LE)) {
+		a = EXP2(LE, a, shift(J));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_GE)) {
+		a = EXP2(GE, a, shift(J));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_INSTANCEOF)) {
+		a = EXP2(INSTANCEOF, a, shift(J));
+		goto loop;
+	}
+	if (!notin && jsP_accept(J, TK_IN)) {
+		a = EXP2(IN, a, shift(J));
+		goto loop;
+	}
 	POPREC();
 	return a;
 }
@@ -557,10 +646,22 @@ equality(js_State *J, int notin)
 loop:
 	INCREC();
 	line = J->lexline;
-	if (jsP_accept(J, TK_EQ)) { a = EXP2(EQ, a, relational(J, notin)); goto loop; }
-	if (jsP_accept(J, TK_NE)) { a = EXP2(NE, a, relational(J, notin)); goto loop; }
-	if (jsP_accept(J, TK_STRICTEQ)) { a = EXP2(STRICTEQ, a, relational(J, notin)); goto loop; }
-	if (jsP_accept(J, TK_STRICTNE)) { a = EXP2(STRICTNE, a, relational(J, notin)); goto loop; }
+	if (jsP_accept(J, TK_EQ)) {
+		a = EXP2(EQ, a, relational(J, notin));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_NE)) {
+		a = EXP2(NE, a, relational(J, notin));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_STRICTEQ)) {
+		a = EXP2(STRICTEQ, a, relational(J, notin));
+		goto loop;
+	}
+	if (jsP_accept(J, TK_STRICTNE)) {
+		a = EXP2(STRICTNE, a, relational(J, notin));
+		goto loop;
+	}
 	POPREC();
 	return a;
 }
@@ -659,18 +760,30 @@ assignment(js_State *J, int notin)
 	js_Ast *a = conditional(J, notin);
 	int line = J->lexline;
 	INCREC();
-	if (jsP_accept(J, '=')) a = EXP2(ASS, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_MUL_ASS)) a = EXP2(ASS_MUL, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_DIV_ASS)) a = EXP2(ASS_DIV, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_MOD_ASS)) a = EXP2(ASS_MOD, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_ADD_ASS)) a = EXP2(ASS_ADD, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_SUB_ASS)) a = EXP2(ASS_SUB, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_SHL_ASS)) a = EXP2(ASS_SHL, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_SHR_ASS)) a = EXP2(ASS_SHR, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_USHR_ASS)) a = EXP2(ASS_USHR, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_AND_ASS)) a = EXP2(ASS_BITAND, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_XOR_ASS)) a = EXP2(ASS_BITXOR, a, assignment(J, notin));
-	else if (jsP_accept(J, TK_OR_ASS)) a = EXP2(ASS_BITOR, a, assignment(J, notin));
+	if (jsP_accept(J, '='))
+		a = EXP2(ASS, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_MUL_ASS))
+		a = EXP2(ASS_MUL, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_DIV_ASS))
+		a = EXP2(ASS_DIV, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_MOD_ASS))
+		a = EXP2(ASS_MOD, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_ADD_ASS))
+		a = EXP2(ASS_ADD, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_SUB_ASS))
+		a = EXP2(ASS_SUB, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_SHL_ASS))
+		a = EXP2(ASS_SHL, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_SHR_ASS))
+		a = EXP2(ASS_SHR, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_USHR_ASS))
+		a = EXP2(ASS_USHR, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_AND_ASS))
+		a = EXP2(ASS_BITAND, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_XOR_ASS))
+		a = EXP2(ASS_BITXOR, a, assignment(J, notin));
+	else if (jsP_accept(J, TK_OR_ASS))
+		a = EXP2(ASS_BITOR, a, assignment(J, notin));
 	DECREC();
 	return a;
 }
@@ -716,10 +829,12 @@ static js_Ast*
 statementlist(js_State *J)
 {
 	js_Ast *head, *tail;
-	if (J->lookahead == '}' || J->lookahead == TK_CASE || J->lookahead == TK_DEFAULT)
+	if (J->lookahead == '}' || J->lookahead == TK_CASE ||
+			J->lookahead == TK_DEFAULT)
 		return NULL;
 	head = tail = LIST(statement(J));
-	while (J->lookahead != '}' && J->lookahead != TK_CASE && J->lookahead != TK_DEFAULT)
+	while (J->lookahead != '}' && J->lookahead != TK_CASE &&
+			J->lookahead != TK_DEFAULT)
 		tail = tail->b = LIST(statement(J));
 	return jsP_list(head);
 }
@@ -743,7 +858,9 @@ caseclause(js_State *J)
 		return STM1(DEFAULT, a);
 	}
 
-	jsP_error(J, "unexpected token in switch: %s (expected 'case' or 'default')", jsY_tokenstring(J->lookahead));
+	jsP_error(J, "unexpected token in switch: "
+			"%s (expected 'case' or 'default')",
+			jsY_tokenstring(J->lookahead));
 }
 
 static js_Ast*
@@ -798,7 +915,8 @@ forstatement(js_State *J, int line)
 			c = statement(J);
 			return STM3(FOR_IN_VAR, a, b, c);
 		}
-		jsP_error(J, "unexpected token in for-var-statement: %s", jsY_tokenstring(J->lookahead));
+		jsP_error(J, "unexpected token in for-var-statement: %s",
+				jsY_tokenstring(J->lookahead));
 	}
 
 	if (J->lookahead != ';')
@@ -817,7 +935,8 @@ forstatement(js_State *J, int line)
 		c = statement(J);
 		return STM3(FOR_IN, a, b, c);
 	}
-	jsP_error(J, "unexpected token in for-statement: %s", jsY_tokenstring(J->lookahead));
+	jsP_error(J, "unexpected token in for-statement: %s",
+			jsY_tokenstring(J->lookahead));
 }
 
 static js_Ast*
@@ -891,7 +1010,8 @@ statement(js_State *J)
 	}
 
 	else if (jsP_accept(J, TK_RETURN)) {
-		if (J->lookahead != ';' && J->lookahead != '}' && J->lookahead != 0)
+		if (J->lookahead != ';' && J->lookahead != '}' &&
+				J->lookahead != 0)
 			a = expression(J, 0);
 		else
 			a = NULL;
@@ -936,7 +1056,9 @@ statement(js_State *J)
 			d = block(J);
 		}
 		if (!b && !d)
-			jsP_error(J, "unexpected token in try: %s (expected 'catch' or 'finally')", jsY_tokenstring(J->lookahead));
+			jsP_error(J, "unexpected token in try: "
+					"%s (expected 'catch' or 'finally')",
+					jsY_tokenstring(J->lookahead));
 		stm = STM4(TRY, a, b, c, d);
 	}
 
@@ -1064,27 +1186,43 @@ jsP_foldconst(js_Ast *node)
 	if (a) {
 		x = node->a->number;
 		switch (node->type) {
-		default: break;
-		case EXP_NEG: return jsP_setnumnode(node, -x);
-		case EXP_POS: return jsP_setnumnode(node, x);
-		case EXP_BITNOT: return jsP_setnumnode(node, ~toint32(x));
+		default:
+			break;
+		case EXP_NEG:
+			return jsP_setnumnode(node, -x);
+		case EXP_POS:
+			return jsP_setnumnode(node, x);
+		case EXP_BITNOT:
+			return jsP_setnumnode(node, ~toint32(x));
 		}
 
 		if (b) {
 			y = node->b->number;
 			switch (node->type) {
-			default: break;
-			case EXP_MUL: return jsP_setnumnode(node, x * y);
-			case EXP_DIV: return jsP_setnumnode(node, x / y);
-			case EXP_MOD: return jsP_setnumnode(node, fmod(x, y));
-			case EXP_ADD: return jsP_setnumnode(node, x + y);
-			case EXP_SUB: return jsP_setnumnode(node, x - y);
-			case EXP_SHL: return jsP_setnumnode(node, toint32(x) << (touint32(y) & 0x1F));
-			case EXP_SHR: return jsP_setnumnode(node, toint32(x) >> (touint32(y) & 0x1F));
-			case EXP_USHR: return jsP_setnumnode(node, touint32(x) >> (touint32(y) & 0x1F));
-			case EXP_BITAND: return jsP_setnumnode(node, toint32(x) & toint32(y));
-			case EXP_BITXOR: return jsP_setnumnode(node, toint32(x) ^ toint32(y));
-			case EXP_BITOR: return jsP_setnumnode(node, toint32(x) | toint32(y));
+			default:
+				break;
+			case EXP_MUL:
+				return jsP_setnumnode(node, x * y);
+			case EXP_DIV:
+				return jsP_setnumnode(node, x / y);
+			case EXP_MOD:
+				return jsP_setnumnode(node, fmod(x, y));
+			case EXP_ADD:
+				return jsP_setnumnode(node, x + y);
+			case EXP_SUB:
+				return jsP_setnumnode(node, x - y);
+			case EXP_SHL:
+				return jsP_setnumnode(node, toint32(x) << (touint32(y) & 0x1F));
+			case EXP_SHR:
+				return jsP_setnumnode(node, toint32(x) >> (touint32(y) & 0x1F));
+			case EXP_USHR:
+				return jsP_setnumnode(node, touint32(x) >> (touint32(y) & 0x1F));
+			case EXP_BITAND:
+				return jsP_setnumnode(node, toint32(x) & toint32(y));
+			case EXP_BITXOR:
+				return jsP_setnumnode(node, toint32(x) ^ toint32(y));
+			case EXP_BITOR:
+				return jsP_setnumnode(node, toint32(x) | toint32(y));
 			}
 		}
 	}
@@ -1110,7 +1248,8 @@ jsP_parse(js_State *J, const char *filename, const char *source)
 }
 
 js_Ast*
-jsP_parsefunction(js_State *J, const char *filename, const char *params, const char *body)
+jsP_parsefunction(js_State *J, const char *filename, const char *params,
+		const char *body)
 {
 	js_Ast *p = NULL;
 	int line = 0;

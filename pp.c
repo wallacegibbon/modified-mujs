@@ -1,9 +1,10 @@
-/* Pretty-print input source by emitting parse tree back as syntax.
- * with no flags: pretty-printed source
- * with -m: minified source with line breaks
- * with -mm: minified source without line breaks
- * with -s: s-expression syntax tree
- */
+/*
+Pretty-print input source by emitting parse tree back as syntax.
+with no flags: pretty-printed source
+with -m: minified source with line breaks
+with -mm: minified source without line breaks
+with -s: s-expression syntax tree
+*/
 
 #include <stdio.h>
 #include <assert.h>

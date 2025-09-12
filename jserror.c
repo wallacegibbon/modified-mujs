@@ -1,7 +1,7 @@
 #include "jsi.h"
 
-#define QQ(X) #X
-#define Q(X) QQ(X)
+#define QQ(X)		#X
+#define Q(X)		QQ(X)
 
 static int
 jsB_stacktrace(js_State *J, int skip)
@@ -16,11 +16,14 @@ jsB_stacktrace(js_State *J, int skip)
 		int line = J->trace[n].line;
 		if (line > 0) {
 			if (name[0])
-				snprintf(buf, sizeof buf, "\n\tat %s (%s:%d)", name, file, line);
+				snprintf(buf, sizeof buf, "\n\tat %s (%s:%d)",
+						name, file, line);
 			else
-				snprintf(buf, sizeof buf, "\n\tat %s:%d", file, line);
+				snprintf(buf, sizeof buf, "\n\tat %s:%d",
+						file, line);
 		} else
-			snprintf(buf, sizeof buf, "\n\tat %s (%s)", name, file);
+			snprintf(buf, sizeof buf, "\n\tat %s (%s)",
+					name, file);
 		js_pushstring(J, buf);
 		if (n < J->tracetop - skip)
 			js_concat(J);
@@ -109,18 +112,18 @@ void
 jsB_initerror(js_State *J)
 {
 	js_pushobject(J, J->Error_prototype);
-	{
-			jsB_props(J, "name", "Error");
-			jsB_propf(J, "Error.prototype.toString", Ep_toString, 0);
-	}
+
+	jsB_props(J, "name", "Error");
+	jsB_propf(J, "Error.prototype.toString", Ep_toString, 0);
+
 	js_newcconstructor(J, jsB_Error, jsB_Error, "Error", 1);
 	js_defglobal(J, "Error", JS_DONTENUM);
 
-	#define IERROR(NAME) \
-		js_pushobject(J, J->NAME##_prototype); \
-		jsB_props(J, "name", Q(NAME)); \
-		js_newcconstructor(J, jsB_##NAME, jsB_##NAME, Q(NAME), 1); \
-		js_defglobal(J, Q(NAME), JS_DONTENUM);
+#define IERROR(NAME) \
+	js_pushobject(J, J->NAME##_prototype); \
+	jsB_props(J, "name", Q(NAME)); \
+	js_newcconstructor(J, jsB_##NAME, jsB_##NAME, Q(NAME), 1); \
+	js_defglobal(J, Q(NAME), JS_DONTENUM);
 
 	IERROR(EvalError);
 	IERROR(RangeError);
@@ -128,6 +131,5 @@ jsB_initerror(js_State *J)
 	IERROR(SyntaxError);
 	IERROR(TypeError);
 	IERROR(URIError);
-
-	#undef IERROR
+#undef IERROR
 }

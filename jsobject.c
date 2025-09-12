@@ -28,21 +28,51 @@ Op_toString(js_State *J)
 	else {
 		js_Object *self = js_toobject(J, 0);
 		switch (self->type) {
-		case JS_COBJECT: js_pushliteral(J, "[object Object]"); break;
-		case JS_CARRAY: js_pushliteral(J, "[object Array]"); break;
-		case JS_CFUNCTION: js_pushliteral(J, "[object Function]"); break;
-		case JS_CSCRIPT: js_pushliteral(J, "[object Function]"); break;
-		case JS_CCFUNCTION: js_pushliteral(J, "[object Function]"); break;
-		case JS_CERROR: js_pushliteral(J, "[object Error]"); break;
-		case JS_CBOOLEAN: js_pushliteral(J, "[object Boolean]"); break;
-		case JS_CNUMBER: js_pushliteral(J, "[object Number]"); break;
-		case JS_CSTRING: js_pushliteral(J, "[object String]"); break;
-		case JS_CREGEXP: js_pushliteral(J, "[object RegExp]"); break;
-		case JS_CDATE: js_pushliteral(J, "[object Date]"); break;
-		case JS_CMATH: js_pushliteral(J, "[object Math]"); break;
-		case JS_CJSON: js_pushliteral(J, "[object JSON]"); break;
-		case JS_CARGUMENTS: js_pushliteral(J, "[object Arguments]"); break;
-		case JS_CITERATOR: js_pushliteral(J, "[object Iterator]"); break;
+		case JS_COBJECT:
+			js_pushliteral(J, "[object Object]");
+			break;
+		case JS_CARRAY:
+			js_pushliteral(J, "[object Array]");
+			break;
+		case JS_CFUNCTION:
+			js_pushliteral(J, "[object Function]");
+			break;
+		case JS_CSCRIPT:
+			js_pushliteral(J, "[object Function]");
+			break;
+		case JS_CCFUNCTION:
+			js_pushliteral(J, "[object Function]");
+			break;
+		case JS_CERROR:
+			js_pushliteral(J, "[object Error]");
+			break;
+		case JS_CBOOLEAN:
+			js_pushliteral(J, "[object Boolean]");
+			break;
+		case JS_CNUMBER:
+			js_pushliteral(J, "[object Number]");
+			break;
+		case JS_CSTRING:
+			js_pushliteral(J, "[object String]");
+			break;
+		case JS_CREGEXP:
+			js_pushliteral(J, "[object RegExp]");
+			break;
+		case JS_CDATE:
+			js_pushliteral(J, "[object Date]");
+			break;
+		case JS_CMATH:
+			js_pushliteral(J, "[object Math]");
+			break;
+		case JS_CJSON:
+			js_pushliteral(J, "[object JSON]");
+			break;
+		case JS_CARGUMENTS:
+			js_pushliteral(J, "[object Arguments]");
+			break;
+		case JS_CITERATOR:
+			js_pushliteral(J, "[object Iterator]");
+			break;
 		case JS_CUSERDATA:
 			js_pushliteral(J, "[object ");
 			js_pushliteral(J, self->u.user.tag);
@@ -69,14 +99,16 @@ Op_hasOwnProperty(js_State *J)
 	int k;
 
 	if (self->type == JS_CSTRING) {
-		if (js_isarrayindex(J, name, &k) && k >= 0 && k < self->u.s.length) {
+		if (js_isarrayindex(J, name, &k) && k >= 0 &&
+				k < self->u.s.length) {
 			js_pushboolean(J, 1);
 			return;
 		}
 	}
 
 	if (self->type == JS_CARRAY && self->u.a.simple) {
-		if (js_isarrayindex(J, name, &k) && k >= 0 && k < self->u.a.flat_length) {
+		if (js_isarrayindex(J, name, &k) && k >= 0 &&
+				k < self->u.a.flat_length) {
 			js_pushboolean(J, 1);
 			return;
 		}
@@ -135,7 +167,10 @@ O_getOwnPropertyDescriptor(js_State *J)
 	obj = js_toobject(J, 1);
 	ref = jsV_getproperty(J, obj, js_tostring(J, 2));
 	if (!ref) {
-		/* TODO: builtin properties (string and array index and length, regexp flags, etc) */
+		/*
+		TODO: builtin properties
+		(string and array index and length, regexp flags, etc)
+		*/
 		js_pushundefined(J);
 	} else {
 		js_newobject(J);
@@ -231,7 +266,8 @@ O_getOwnPropertyNames(js_State *J)
 }
 
 static void
-ToPropertyDescriptor(js_State *J, js_Object *obj, const char *name, js_Object *desc)
+ToPropertyDescriptor(js_State *J, js_Object *obj, const char *name,
+		js_Object *desc)
 {
 	int haswritable = 0;
 	int hasvalue = 0;
@@ -289,7 +325,8 @@ O_defineProperty(js_State *J)
 {
 	if (!js_isobject(J, 1)) js_typeerror(J, "not an object");
 	if (!js_isobject(J, 3)) js_typeerror(J, "not an object");
-	ToPropertyDescriptor(J, js_toobject(J, 1), js_tostring(J, 2), js_toobject(J, 3));
+	ToPropertyDescriptor(J, js_toobject(J, 1), js_tostring(J, 2),
+			js_toobject(J, 3));
 	js_copy(J, 1);
 }
 
@@ -300,7 +337,8 @@ O_defineProperties_walk(js_State *J, js_Property *ref)
 		O_defineProperties_walk(J, ref->left);
 	if (!(ref->atts & JS_DONTENUM)) {
 		js_pushvalue(J, ref->value);
-		ToPropertyDescriptor(J, js_toobject(J, 1), ref->name, js_toobject(J, -1));
+		ToPropertyDescriptor(J, js_toobject(J, 1), ref->name,
+				js_toobject(J, -1));
 		js_pop(J, 1);
 	}
 	if (ref->right->level)
@@ -339,9 +377,7 @@ O_create_walk(js_State *J, js_Object *obj, js_Property *ref)
 static void
 O_create(js_State *J)
 {
-	js_Object *obj;
-	js_Object *proto;
-	js_Object *props;
+	js_Object *obj, *proto, *props;
 
 	if (js_isobject(J, 1))
 		proto = js_toobject(J, 1);
@@ -561,30 +597,30 @@ void
 jsB_initobject(js_State *J)
 {
 	js_pushobject(J, J->Object_prototype);
-	{
-		jsB_propf(J, "Object.prototype.toString", Op_toString, 0);
-		jsB_propf(J, "Object.prototype.toLocaleString", Op_toString, 0);
-		jsB_propf(J, "Object.prototype.valueOf", Op_valueOf, 0);
-		jsB_propf(J, "Object.prototype.hasOwnProperty", Op_hasOwnProperty, 1);
-		jsB_propf(J, "Object.prototype.isPrototypeOf", Op_isPrototypeOf, 1);
-		jsB_propf(J, "Object.prototype.propertyIsEnumerable", Op_propertyIsEnumerable, 1);
-	}
+
+	jsB_propf(J, "Object.prototype.toString", Op_toString, 0);
+	jsB_propf(J, "Object.prototype.toLocaleString", Op_toString, 0);
+	jsB_propf(J, "Object.prototype.valueOf", Op_valueOf, 0);
+	jsB_propf(J, "Object.prototype.hasOwnProperty", Op_hasOwnProperty, 1);
+	jsB_propf(J, "Object.prototype.isPrototypeOf", Op_isPrototypeOf, 1);
+	jsB_propf(J, "Object.prototype.propertyIsEnumerable", Op_propertyIsEnumerable, 1);
+
 	js_newcconstructor(J, jsB_Object, jsB_new_Object, "Object", 1);
-	{
-		/* ES5 */
-		jsB_propf(J, "Object.getPrototypeOf", O_getPrototypeOf, 1);
-		jsB_propf(J, "Object.getOwnPropertyDescriptor", O_getOwnPropertyDescriptor, 2);
-		jsB_propf(J, "Object.getOwnPropertyNames", O_getOwnPropertyNames, 1);
-		jsB_propf(J, "Object.create", O_create, 2);
-		jsB_propf(J, "Object.defineProperty", O_defineProperty, 3);
-		jsB_propf(J, "Object.defineProperties", O_defineProperties, 2);
-		jsB_propf(J, "Object.seal", O_seal, 1);
-		jsB_propf(J, "Object.freeze", O_freeze, 1);
-		jsB_propf(J, "Object.preventExtensions", O_preventExtensions, 1);
-		jsB_propf(J, "Object.isSealed", O_isSealed, 1);
-		jsB_propf(J, "Object.isFrozen", O_isFrozen, 1);
-		jsB_propf(J, "Object.isExtensible", O_isExtensible, 1);
-		jsB_propf(J, "Object.keys", O_keys, 1);
-	}
+
+	/* ES5 */
+	jsB_propf(J, "Object.getPrototypeOf", O_getPrototypeOf, 1);
+	jsB_propf(J, "Object.getOwnPropertyDescriptor", O_getOwnPropertyDescriptor, 2);
+	jsB_propf(J, "Object.getOwnPropertyNames", O_getOwnPropertyNames, 1);
+	jsB_propf(J, "Object.create", O_create, 2);
+	jsB_propf(J, "Object.defineProperty", O_defineProperty, 3);
+	jsB_propf(J, "Object.defineProperties", O_defineProperties, 2);
+	jsB_propf(J, "Object.seal", O_seal, 1);
+	jsB_propf(J, "Object.freeze", O_freeze, 1);
+	jsB_propf(J, "Object.preventExtensions", O_preventExtensions, 1);
+	jsB_propf(J, "Object.isSealed", O_isSealed, 1);
+	jsB_propf(J, "Object.isFrozen", O_isFrozen, 1);
+	jsB_propf(J, "Object.isExtensible", O_isExtensible, 1);
+	jsB_propf(J, "Object.keys", O_keys, 1);
+
 	js_defglobal(J, "Object", JS_DONTENUM);
 }

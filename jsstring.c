@@ -3,7 +3,8 @@
 #include "regexp.h"
 
 static int
-js_doregexec(js_State *J, Reprog *prog, const char *string, Resub *sub, int eflags)
+js_doregexec(js_State *J, Reprog *prog, const char *string, Resub *sub,
+		int eflags)
 {
 	int result = js_regexec(prog, string, sub, eflags);
 	if (result < 0)
@@ -435,7 +436,8 @@ Sp_toUpperCase(js_State *J)
 static int
 istrim(int c)
 {
-	return c == 0x9 || c == 0xB || c == 0xC || c == 0x20 || c == 0xA0 || c == 0xFEFF ||
+	return c == 0x9 || c == 0xB || c == 0xC || c == 0x20 || c == 0xA0 ||
+		c == 0xFEFF ||
 		c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
 }
 
@@ -580,7 +582,8 @@ loop:
 	if (js_iscallable(J, 2)) {
 		js_copy(J, 2);
 		js_pushundefined(J);
-		for (x = 0; m.sub[x].sp; ++x) /* arg 0..x: substring and subexps that matched */
+		/* arg 0..x: substring and subexps that matched */
+		for (x = 0; m.sub[x].sp; ++x)
 			js_pushlstring(J, m.sub[x].sp, m.sub[x].ep - m.sub[x].sp);
 		js_pushnumber(J, s - source); /* arg x+2: offset within search string */
 		js_copy(J, 0); /* arg x+3: search string */
@@ -853,32 +856,32 @@ jsB_initstring(js_State *J)
 	J->String_prototype->u.s.length = 0;
 
 	js_pushobject(J, J->String_prototype);
-	{
-		jsB_propf(J, "String.prototype.toString", Sp_toString, 0);
-		jsB_propf(J, "String.prototype.valueOf", Sp_valueOf, 0);
-		jsB_propf(J, "String.prototype.charAt", Sp_charAt, 1);
-		jsB_propf(J, "String.prototype.charCodeAt", Sp_charCodeAt, 1);
-		jsB_propf(J, "String.prototype.concat", Sp_concat, 0); /* 1 */
-		jsB_propf(J, "String.prototype.indexOf", Sp_indexOf, 1);
-		jsB_propf(J, "String.prototype.lastIndexOf", Sp_lastIndexOf, 1);
-		jsB_propf(J, "String.prototype.localeCompare", Sp_localeCompare, 1);
-		jsB_propf(J, "String.prototype.match", Sp_match, 1);
-		jsB_propf(J, "String.prototype.replace", Sp_replace, 2);
-		jsB_propf(J, "String.prototype.search", Sp_search, 1);
-		jsB_propf(J, "String.prototype.slice", Sp_slice, 2);
-		jsB_propf(J, "String.prototype.split", Sp_split, 2);
-		jsB_propf(J, "String.prototype.substring", Sp_substring, 2);
-		jsB_propf(J, "String.prototype.toLowerCase", Sp_toLowerCase, 0);
-		jsB_propf(J, "String.prototype.toLocaleLowerCase", Sp_toLowerCase, 0);
-		jsB_propf(J, "String.prototype.toUpperCase", Sp_toUpperCase, 0);
-		jsB_propf(J, "String.prototype.toLocaleUpperCase", Sp_toUpperCase, 0);
 
-		/* ES5 */
-		jsB_propf(J, "String.prototype.trim", Sp_trim, 0);
-	}
+	jsB_propf(J, "String.prototype.toString", Sp_toString, 0);
+	jsB_propf(J, "String.prototype.valueOf", Sp_valueOf, 0);
+	jsB_propf(J, "String.prototype.charAt", Sp_charAt, 1);
+	jsB_propf(J, "String.prototype.charCodeAt", Sp_charCodeAt, 1);
+	jsB_propf(J, "String.prototype.concat", Sp_concat, 0); /* 1 */
+	jsB_propf(J, "String.prototype.indexOf", Sp_indexOf, 1);
+	jsB_propf(J, "String.prototype.lastIndexOf", Sp_lastIndexOf, 1);
+	jsB_propf(J, "String.prototype.localeCompare", Sp_localeCompare, 1);
+	jsB_propf(J, "String.prototype.match", Sp_match, 1);
+	jsB_propf(J, "String.prototype.replace", Sp_replace, 2);
+	jsB_propf(J, "String.prototype.search", Sp_search, 1);
+	jsB_propf(J, "String.prototype.slice", Sp_slice, 2);
+	jsB_propf(J, "String.prototype.split", Sp_split, 2);
+	jsB_propf(J, "String.prototype.substring", Sp_substring, 2);
+	jsB_propf(J, "String.prototype.toLowerCase", Sp_toLowerCase, 0);
+	jsB_propf(J, "String.prototype.toLocaleLowerCase", Sp_toLowerCase, 0);
+	jsB_propf(J, "String.prototype.toUpperCase", Sp_toUpperCase, 0);
+	jsB_propf(J, "String.prototype.toLocaleUpperCase", Sp_toUpperCase, 0);
+
+	/* ES5 */
+	jsB_propf(J, "String.prototype.trim", Sp_trim, 0);
+
 	js_newcconstructor(J, jsB_String, jsB_new_String, "String", 0); /* 1 */
-	{
-		jsB_propf(J, "String.fromCharCode", S_fromCharCode, 0); /* 1 */
-	}
+
+	jsB_propf(J, "String.fromCharCode", S_fromCharCode, 0); /* 1 */
+
 	js_defglobal(J, "String", JS_DONTENUM);
 }

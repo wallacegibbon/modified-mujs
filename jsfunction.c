@@ -232,12 +232,12 @@ jsB_initfunction(js_State *J)
 	J->Function_prototype->u.c.length = 0;
 
 	js_pushobject(J, J->Function_prototype);
-	{
-		jsB_propf(J, "Function.prototype.toString", Fp_toString, 2);
-		jsB_propf(J, "Function.prototype.apply", Fp_apply, 2);
-		jsB_propf(J, "Function.prototype.call", Fp_call, 1);
-		jsB_propf(J, "Function.prototype.bind", Fp_bind, 1);
-	}
+
+	jsB_propf(J, "Function.prototype.toString", Fp_toString, 2);
+	jsB_propf(J, "Function.prototype.apply", Fp_apply, 2);
+	jsB_propf(J, "Function.prototype.call", Fp_call, 1);
+	jsB_propf(J, "Function.prototype.bind", Fp_bind, 1);
+
 	js_newcconstructor(J, jsB_Function, jsB_Function, "Function", 1);
 	js_defglobal(J, "Function", JS_DONTENUM);
 }
