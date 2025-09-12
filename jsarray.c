@@ -4,7 +4,8 @@
 #define JS_HEAPSORT 0
 #endif
 
-int js_getlength(js_State *J, int idx)
+int
+js_getlength(js_State *J, int idx)
 {
 	int len;
 	js_getproperty(J, idx, "length");
@@ -13,13 +14,15 @@ int js_getlength(js_State *J, int idx)
 	return len;
 }
 
-void js_setlength(js_State *J, int idx, int len)
+void
+js_setlength(js_State *J, int idx, int len)
 {
 	js_pushnumber(J, len);
 	js_setproperty(J, idx < 0 ? idx - 1 : idx, "length");
 }
 
-static void jsB_new_Array(js_State *J)
+static void
+jsB_new_Array(js_State *J)
 {
 	int i, top = js_gettop(J);
 
@@ -41,7 +44,8 @@ static void jsB_new_Array(js_State *J)
 	}
 }
 
-static void Ap_concat(js_State *J)
+static void
+Ap_concat(js_State *J)
 {
 	int i, top = js_gettop(J);
 	int n, k, len;
@@ -63,7 +67,8 @@ static void Ap_concat(js_State *J)
 	}
 }
 
-static void Ap_join(js_State *J)
+static void
+Ap_join(js_State *J)
 {
 	char * volatile out = NULL;
 	const char * volatile r = NULL;
@@ -129,7 +134,8 @@ static void Ap_join(js_State *J)
 	js_free(J, out);
 }
 
-static void Ap_pop(js_State *J)
+static void
+Ap_pop(js_State *J)
 {
 	int n;
 
@@ -145,7 +151,8 @@ static void Ap_pop(js_State *J)
 	}
 }
 
-static void Ap_push(js_State *J)
+static void
+Ap_push(js_State *J)
 {
 	int i, top = js_gettop(J);
 	int n;
@@ -162,7 +169,8 @@ static void Ap_push(js_State *J)
 	js_pushnumber(J, n);
 }
 
-static void Ap_reverse(js_State *J)
+static void
+Ap_reverse(js_State *J)
 {
 	int len, middle, lower;
 
@@ -190,7 +198,8 @@ static void Ap_reverse(js_State *J)
 	js_copy(J, 0);
 }
 
-static void Ap_shift(js_State *J)
+static void
+Ap_shift(js_State *J)
 {
 	int k, len;
 
@@ -215,7 +224,8 @@ static void Ap_shift(js_State *J)
 	js_setlength(J, 0, len - 1);
 }
 
-static void Ap_slice(js_State *J)
+static void
+Ap_slice(js_State *J)
 {
 	int len, s, e, n;
 	double sv, ev;
@@ -237,7 +247,8 @@ static void Ap_slice(js_State *J)
 			js_setindex(J, -2, n);
 }
 
-static int Ap_sort_cmp(js_State *J, int idx_a, int idx_b)
+static int
+Ap_sort_cmp(js_State *J, int idx_a, int idx_b)
 {
 	js_Object *obj = js_tovalue(J, 0)->u.object;
 	if (obj->u.a.simple) {
@@ -323,7 +334,8 @@ static int Ap_sort_cmp(js_State *J, int idx_a, int idx_b)
 	}
 }
 
-static void Ap_sort_swap(js_State *J, int idx_a, int idx_b)
+static void
+Ap_sort_swap(js_State *J, int idx_a, int idx_b)
 {
 	js_Object *obj = js_tovalue(J, 0)->u.object;
 	if (obj->u.a.simple) {
@@ -348,7 +360,8 @@ static void Ap_sort_swap(js_State *J, int idx_a, int idx_b)
 
 /* A bottom-up/bouncing heapsort implementation */
 
-static int Ap_sort_leaf(js_State *J, int i, int end)
+static int
+Ap_sort_leaf(js_State *J, int i, int end)
 {
 	int j = i;
 	int lc = (j << 1) + 1; /* left child */
@@ -366,7 +379,8 @@ static int Ap_sort_leaf(js_State *J, int i, int end)
 	return j;
 }
 
-static void Ap_sort_sift(js_State *J, int i, int end)
+static void
+Ap_sort_sift(js_State *J, int i, int end)
 {
 	int j = Ap_sort_leaf(J, i, end);
 	while (Ap_sort_cmp(J, i, j) > 0)
@@ -377,7 +391,8 @@ static void Ap_sort_sift(js_State *J, int i, int end)
 	}
 }
 
-static void Ap_sort_heapsort(js_State *J, int n)
+static void
+Ap_sort_heapsort(js_State *J, int n)
 {
 	int i;
 	for (i = n / 2 - 1; i >= 0; --i)
@@ -388,7 +403,8 @@ static void Ap_sort_heapsort(js_State *J, int n)
 	}
 }
 
-static void Ap_sort(js_State *J)
+static void
+Ap_sort(js_State *J)
 {
 	int len;
 
@@ -409,7 +425,8 @@ static void Ap_sort(js_State *J)
 	js_copy(J, 0);
 }
 
-static void Ap_splice(js_State *J)
+static void
+Ap_splice(js_State *J)
 {
 	int top = js_gettop(J);
 	int len, start, del, add, k;
@@ -467,7 +484,8 @@ static void Ap_splice(js_State *J)
 	js_setlength(J, 0, len - del + add);
 }
 
-static void Ap_unshift(js_State *J)
+static void
+Ap_unshift(js_State *J)
 {
 	int i, top = js_gettop(J);
 	int k, len;
@@ -493,7 +511,8 @@ static void Ap_unshift(js_State *J)
 	js_pushnumber(J, len + top - 1);
 }
 
-static void Ap_toString(js_State *J)
+static void
+Ap_toString(js_State *J)
 {
 	if (!js_iscoercible(J, 0))
 		js_typeerror(J, "'this' is not an object");
@@ -511,7 +530,8 @@ static void Ap_toString(js_State *J)
 	js_call(J, 0);
 }
 
-static void Ap_indexOf(js_State *J)
+static void
+Ap_indexOf(js_State *J)
 {
 	int k, len, from;
 
@@ -534,7 +554,8 @@ static void Ap_indexOf(js_State *J)
 	js_pushnumber(J, -1);
 }
 
-static void Ap_lastIndexOf(js_State *J)
+static void
+Ap_lastIndexOf(js_State *J)
 {
 	int k, len, from;
 
@@ -557,7 +578,8 @@ static void Ap_lastIndexOf(js_State *J)
 	js_pushnumber(J, -1);
 }
 
-static void Ap_every(js_State *J)
+static void
+Ap_every(js_State *J)
 {
 	int hasthis = js_gettop(J) >= 3;
 	int k, len;
@@ -586,7 +608,8 @@ static void Ap_every(js_State *J)
 	js_pushboolean(J, 1);
 }
 
-static void Ap_some(js_State *J)
+static void
+Ap_some(js_State *J)
 {
 	int hasthis = js_gettop(J) >= 3;
 	int k, len;
@@ -615,7 +638,8 @@ static void Ap_some(js_State *J)
 	js_pushboolean(J, 0);
 }
 
-static void Ap_forEach(js_State *J)
+static void
+Ap_forEach(js_State *J)
 {
 	int hasthis = js_gettop(J) >= 3;
 	int k, len;
@@ -642,7 +666,8 @@ static void Ap_forEach(js_State *J)
 	js_pushundefined(J);
 }
 
-static void Ap_map(js_State *J)
+static void
+Ap_map(js_State *J)
 {
 	int hasthis = js_gettop(J) >= 3;
 	int k, len;
@@ -671,7 +696,8 @@ static void Ap_map(js_State *J)
 	js_setlength(J, -1, len);
 }
 
-static void Ap_filter(js_State *J)
+static void
+Ap_filter(js_State *J)
 {
 	int hasthis = js_gettop(J) >= 3;
 	int k, to, len;
@@ -704,7 +730,8 @@ static void Ap_filter(js_State *J)
 	}
 }
 
-static void Ap_reduce(js_State *J)
+static void
+Ap_reduce(js_State *J)
 {
 	int hasinitial = js_gettop(J) >= 3;
 	int k, len;
@@ -745,7 +772,8 @@ static void Ap_reduce(js_State *J)
 	/* return accumulator */
 }
 
-static void Ap_reduceRight(js_State *J)
+static void
+Ap_reduceRight(js_State *J)
 {
 	int hasinitial = js_gettop(J) >= 3;
 	int k, len;
@@ -786,7 +814,8 @@ static void Ap_reduceRight(js_State *J)
 	/* return accumulator */
 }
 
-static void A_isArray(js_State *J)
+static void
+A_isArray(js_State *J)
 {
 	if (js_isobject(J, 1)) {
 		js_Object *T = js_toobject(J, 1);
@@ -796,7 +825,8 @@ static void A_isArray(js_State *J)
 	}
 }
 
-void jsB_initarray(js_State *J)
+void
+jsB_initarray(js_State *J)
 {
 	js_pushobject(J, J->Array_prototype);
 	{

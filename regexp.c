@@ -64,13 +64,15 @@ struct cstate {
 	Reclass cclass[REG_MAXCLASS];
 };
 
-static void die(struct cstate *g, const char *message)
+static void
+die(struct cstate *g, const char *message)
 {
 	g->error = message;
 	longjmp(g->kaboom, 1);
 }
 
-static int canon(Rune c)
+static int
+canon(Rune c)
 {
 	Rune u = toupperrune(c);
 	if (c >= 128 && u < 128)
@@ -93,7 +95,8 @@ enum {
 	L_COUNT,	/* {M,N} */
 };
 
-static int hex(struct cstate *g, int c)
+static int
+hex(struct cstate *g, int c)
 {
 	if (c >= '0' && c <= '9') return c - '0';
 	if (c >= 'a' && c <= 'f') return c - 'a' + 0xA;
@@ -102,21 +105,24 @@ static int hex(struct cstate *g, int c)
 	return 0;
 }
 
-static int dec(struct cstate *g, int c)
+static int
+dec(struct cstate *g, int c)
 {
 	if (c >= '0' && c <= '9') return c - '0';
 	die(g, "invalid quantifier");
 	return 0;
 }
 
-#define ESCAPES "BbDdSsWw^$\\.*+?()[]{}|-0123456789"
+#define ESCAPES	"BbDdSsWw^$\\.*+?()[]{}|-0123456789"
 
-static int isunicodeletter(int c)
+static int
+isunicodeletter(int c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isalpharune(c);
 }
 
-static int nextrune(struct cstate *g)
+static int
+nextrune(struct cstate *g)
 {
 	if (!*g->source) {
 		g->yychar = EOF;
@@ -173,7 +179,8 @@ static int nextrune(struct cstate *g)
 	return 0;
 }
 
-static int lexcount(struct cstate *g)
+static int
+lexcount(struct cstate *g)
 {
 	g->yychar = *g->source++;
 
@@ -207,7 +214,8 @@ static int lexcount(struct cstate *g)
 	return L_COUNT;
 }
 
-static void newcclass(struct cstate *g)
+static void
+newcclass(struct cstate *g)
 {
 	if (g->ncclass >= REG_MAXCLASS)
 		die(g, "too many character classes");
@@ -215,7 +223,8 @@ static void newcclass(struct cstate *g)
 	g->yycc->end = g->yycc->spans;
 }
 
-static void addrange(struct cstate *g, Rune a, Rune b)
+static void
+addrange(struct cstate *g, Rune a, Rune b)
 {
 	Reclass *cc = g->yycc;
 	Rune *p;
@@ -255,18 +264,21 @@ static void addrange(struct cstate *g, Rune a, Rune b)
 	*cc->end++ = b;
 }
 
-static void addranges_d(struct cstate *g)
+static void
+addranges_d(struct cstate *g)
 {
 	addrange(g, '0', '9');
 }
 
-static void addranges_D(struct cstate *g)
+static void
+addranges_D(struct cstate *g)
 {
 	addrange(g, 0, '0'-1);
 	addrange(g, '9'+1, 0xFFFF);
 }
 
-static void addranges_s(struct cstate *g)
+static void
+addranges_s(struct cstate *g)
 {
 	addrange(g, 0x9, 0xD);
 	addrange(g, 0x20, 0x20);
@@ -275,7 +287,8 @@ static void addranges_s(struct cstate *g)
 	addrange(g, 0xFEFF, 0xFEFF);
 }
 
-static void addranges_S(struct cstate *g)
+static void
+addranges_S(struct cstate *g)
 {
 	addrange(g, 0, 0x9-1);
 	addrange(g, 0xD+1, 0x20-1);
@@ -285,7 +298,8 @@ static void addranges_S(struct cstate *g)
 	addrange(g, 0xFEFF+1, 0xFFFF);
 }
 
-static void addranges_w(struct cstate *g)
+static void
+addranges_w(struct cstate *g)
 {
 	addrange(g, '0', '9');
 	addrange(g, 'A', 'Z');
@@ -293,7 +307,8 @@ static void addranges_w(struct cstate *g)
 	addrange(g, 'a', 'z');
 }
 
-static void addranges_W(struct cstate *g)
+static void
+addranges_W(struct cstate *g)
 {
 	addrange(g, 0, '0'-1);
 	addrange(g, '9'+1, 'A'-1);
@@ -302,7 +317,8 @@ static void addranges_W(struct cstate *g)
 	addrange(g, 'z'+1, 0xFFFF);
 }
 
-static int lexclass(struct cstate *g)
+static int
+lexclass(struct cstate *g)
 {
 	int type = L_CCLASS;
 	int quoted, havesave, havedash;
@@ -384,7 +400,8 @@ static int lexclass(struct cstate *g)
 	return type;
 }
 
-static int lex(struct cstate *g)
+static int
+lex(struct cstate *g)
 {
 	int quoted = nextrune(g);
 	if (quoted) {
@@ -459,7 +476,8 @@ struct Renode {
 	Renode *y;
 };
 
-static Renode *newnode(struct cstate *g, int type)
+static Renode*
+newnode(struct cstate *g, int type)
 {
 	Renode *node = g->pend++;
 	node->type = type;
@@ -472,7 +490,8 @@ static Renode *newnode(struct cstate *g, int type)
 	return node;
 }
 
-static int empty(Renode *node)
+static int
+empty(Renode *node)
 {
 	if (!node) return 1;
 	switch (node->type) {
@@ -486,7 +505,8 @@ static int empty(Renode *node)
 	}
 }
 
-static Renode *newrep(struct cstate *g, Renode *atom, int ng, int min, int max)
+static Renode*
+newrep(struct cstate *g, Renode *atom, int ng, int min, int max)
 {
 	Renode *rep = newnode(g, P_REP);
 	if (max == REPINF && empty(atom))
@@ -498,12 +518,14 @@ static Renode *newrep(struct cstate *g, Renode *atom, int ng, int min, int max)
 	return rep;
 }
 
-static void next(struct cstate *g)
+static void
+next(struct cstate *g)
 {
 	g->lookahead = lex(g);
 }
 
-static int accept(struct cstate *g, int t)
+static int
+accept(struct cstate *g, int t)
 {
 	if (g->lookahead == t) {
 		next(g);
@@ -512,9 +534,10 @@ static int accept(struct cstate *g, int t)
 	return 0;
 }
 
-static Renode *parsealt(struct cstate *g);
+static Renode*	parsealt(struct cstate *g);
 
-static Renode *parseatom(struct cstate *g)
+static Renode*
+parseatom(struct cstate *g)
 {
 	Renode *atom;
 	if (g->lookahead == L_CHAR) {
@@ -581,7 +604,8 @@ static Renode *parseatom(struct cstate *g)
 	return NULL;
 }
 
-static Renode *parserep(struct cstate *g)
+static Renode*
+parserep(struct cstate *g)
 {
 	Renode *atom;
 
@@ -604,7 +628,8 @@ static Renode *parserep(struct cstate *g)
 	return atom;
 }
 
-static Renode *parsecat(struct cstate *g)
+static Renode*
+parsecat(struct cstate *g)
 {
 	Renode *cat, *head, **tail;
 	if (g->lookahead != EOF && g->lookahead != '|' && g->lookahead != ')') {
@@ -623,7 +648,8 @@ static Renode *parsecat(struct cstate *g)
 	return NULL;
 }
 
-static Renode *parsealt(struct cstate *g)
+static Renode*
+parsealt(struct cstate *g)
 {
 	Renode *alt, *x;
 	alt = parsecat(g);
@@ -654,7 +680,8 @@ struct Reinst {
 	Reinst *y;
 };
 
-static int count(struct cstate *g, Renode *node, int depth)
+static int
+count(struct cstate *g, Renode *node, int depth)
 {
 	int min, max, n;
 	if (!node) return 0;
@@ -677,7 +704,8 @@ static int count(struct cstate *g, Renode *node, int depth)
 	}
 }
 
-static Reinst *emit(Reprog *prog, int opcode)
+static Reinst*
+emit(Reprog *prog, int opcode)
 {
 	Reinst *inst = prog->end++;
 	inst->opcode = opcode;
@@ -688,7 +716,8 @@ static Reinst *emit(Reprog *prog, int opcode)
 	return inst;
 }
 
-static void compile(Reprog *prog, Renode *node)
+static void
+compile(Reprog *prog, Renode *node)
 {
 	Reinst *inst, *split, *jump;
 	int i;
@@ -807,7 +836,8 @@ loop:
 }
 
 #ifdef TEST
-static void dumpnode(struct cstate *g, Renode *node)
+static void
+dumpnode(struct cstate *g, Renode *node)
 {
 	Rune *p;
 	Reclass *cc;
@@ -845,7 +875,9 @@ static void dumpnode(struct cstate *g, Renode *node)
 	}
 }
 
-static void dumpcclass(Reclass *cc) {
+static void
+dumpcclass(Reclass *cc)
+{
 	Rune *p;
 	for (p = cc->spans; p < cc->end; p += 2) {
 		if (p[0] > 32 && p[0] < 127)
@@ -860,7 +892,8 @@ static void dumpcclass(Reclass *cc) {
 	putchar('\n');
 }
 
-static void dumpprog(Reprog *prog)
+static void
+dumpprog(Reprog *prog)
 {
 	Reinst *inst;
 	int i;
@@ -889,7 +922,8 @@ static void dumpprog(Reprog *prog)
 }
 #endif
 
-Reprog *regcompx(void *(*alloc)(void *ctx, void *p, int n), void *ctx,
+Reprog*
+regcompx(void *(*alloc)(void *ctx, void *p, int n), void *ctx,
 	const char *pattern, int cflags, const char **errorp)
 {
 	struct cstate g;
@@ -985,7 +1019,8 @@ Reprog *regcompx(void *(*alloc)(void *ctx, void *p, int n), void *ctx,
 	return g.prog;
 }
 
-void regfreex(void *(*alloc)(void *ctx, void *p, int n), void *ctx, Reprog *prog)
+void
+regfreex(void* (*alloc)(void *ctx, void *p, int n), void *ctx, Reprog *prog)
 {
 	if (prog) {
 		if (prog->cclass)
@@ -995,7 +1030,8 @@ void regfreex(void *(*alloc)(void *ctx, void *p, int n), void *ctx, Reprog *prog
 	}
 }
 
-static void *default_alloc(void *ctx, void *p, int n)
+static void*
+default_alloc(void *ctx, void *p, int n)
 {
 	if (n == 0) {
 		free(p);
@@ -1004,24 +1040,28 @@ static void *default_alloc(void *ctx, void *p, int n)
 	return realloc(p, (size_t)n);
 }
 
-Reprog *regcomp(const char *pattern, int cflags, const char **errorp)
+Reprog*
+regcomp(const char *pattern, int cflags, const char **errorp)
 {
 	return regcompx(default_alloc, NULL, pattern, cflags, errorp);
 }
 
-void regfree(Reprog *prog)
+void
+regfree(Reprog *prog)
 {
 	regfreex(default_alloc, NULL, prog);
 }
 
 /* Match */
 
-static int isnewline(int c)
+static int
+isnewline(int c)
 {
 	return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
 }
 
-static int iswordchar(int c)
+static int
+iswordchar(int c)
 {
 	return c == '_' ||
 		(c >= 'a' && c <= 'z') ||
@@ -1029,7 +1069,8 @@ static int iswordchar(int c)
 		(c >= '0' && c <= '9');
 }
 
-static int incclass(Reclass *cc, Rune c)
+static int
+incclass(Reclass *cc, Rune c)
 {
 	Rune *p;
 	for (p = cc->spans; p < cc->end; p += 2)
@@ -1038,7 +1079,8 @@ static int incclass(Reclass *cc, Rune c)
 	return 0;
 }
 
-static int incclasscanon(Reclass *cc, Rune c)
+static int
+incclasscanon(Reclass *cc, Rune c)
 {
 	Rune *p, r;
 	for (p = cc->spans; p < cc->end; p += 2)
@@ -1048,7 +1090,8 @@ static int incclasscanon(Reclass *cc, Rune c)
 	return 0;
 }
 
-static int strncmpcanon(const char *a, const char *b, int n)
+static int
+strncmpcanon(const char *a, const char *b, int n)
 {
 	Rune ra, rb;
 	int c;
@@ -1064,7 +1107,9 @@ static int strncmpcanon(const char *a, const char *b, int n)
 	return 0;
 }
 
-static int match(Reinst *pc, const char *sp, const char *bol, int flags, Resub *out, int depth)
+static int
+match(Reinst *pc, const char *sp, const char *bol, int flags, Resub *out,
+	int depth)
 {
 	Resub scratch;
 	int result;
@@ -1224,7 +1269,8 @@ static int match(Reinst *pc, const char *sp, const char *bol, int flags, Resub *
 	}
 }
 
-int regexec(Reprog *prog, const char *sp, Resub *sub, int eflags)
+int
+regexec(Reprog *prog, const char *sp, Resub *sub, int eflags)
 {
 	Resub scratch;
 	int i;
@@ -1240,7 +1286,8 @@ int regexec(Reprog *prog, const char *sp, Resub *sub, int eflags)
 }
 
 #ifdef TEST
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	const char *error;
 	const char *s;

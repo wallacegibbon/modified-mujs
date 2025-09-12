@@ -43,7 +43,8 @@ static js_Property *newproperty(js_State *J, js_Object *obj, const char *name)
 	return node;
 }
 
-static js_Property *lookup(js_Property *node, const char *name)
+static js_Property*
+lookup(js_Property *node, const char *name)
 {
 	while (node != &sentinel) {
 		int c = strcmp(name, node->name);
@@ -57,7 +58,8 @@ static js_Property *lookup(js_Property *node, const char *name)
 	return NULL;
 }
 
-static js_Property *skew(js_Property *node)
+static js_Property*
+skew(js_Property *node)
 {
 	if (node->left->level == node->level) {
 		js_Property *temp = node;
@@ -68,7 +70,8 @@ static js_Property *skew(js_Property *node)
 	return node;
 }
 
-static js_Property *split(js_Property *node)
+static js_Property*
+split(js_Property *node)
 {
 	if (node->right->right->level == node->level) {
 		js_Property *temp = node;
@@ -80,7 +83,8 @@ static js_Property *split(js_Property *node)
 	return node;
 }
 
-static js_Property *insert(js_State *J, js_Object *obj, js_Property *node, const char *name, js_Property **result)
+static js_Property*
+insert(js_State *J, js_Object *obj, js_Property *node, const char *name, js_Property **result)
 {
 	if (node != &sentinel) {
 		int c = strcmp(name, node->name);
@@ -97,13 +101,15 @@ static js_Property *insert(js_State *J, js_Object *obj, js_Property *node, const
 	return *result = newproperty(J, obj, name);
 }
 
-static void freeproperty(js_State *J, js_Object *obj, js_Property *node)
+static void
+freeproperty(js_State *J, js_Object *obj, js_Property *node)
 {
 	js_free(J, node);
 	--obj->count;
 }
 
-static js_Property *unlinkproperty(js_Property *node, const char *name, js_Property **garbage)
+static js_Property*
+unlinkproperty(js_Property *node, const char *name, js_Property **garbage)
 {
 	js_Property *temp, *a, *b;
 	if (node != &sentinel) {
@@ -153,7 +159,8 @@ static js_Property *unlinkproperty(js_Property *node, const char *name, js_Prope
 	return node;
 }
 
-static js_Property *deleteproperty(js_State *J, js_Object *obj, js_Property *tree, const char *name)
+static js_Property*
+deleteproperty(js_State *J, js_Object *obj, js_Property *tree, const char *name)
 {
 	js_Property *garbage = &sentinel;
 	tree = unlinkproperty(tree, name, &garbage);
@@ -162,7 +169,8 @@ static js_Property *deleteproperty(js_State *J, js_Object *obj, js_Property *tre
 	return tree;
 }
 
-js_Object *jsV_newobject(js_State *J, enum js_Class type, js_Object *prototype)
+js_Object*
+jsV_newobject(js_State *J, enum js_Class type, js_Object *prototype)
 {
 	js_Object *obj = js_malloc(J, sizeof *obj);
 	memset(obj, 0, sizeof *obj);
@@ -178,12 +186,14 @@ js_Object *jsV_newobject(js_State *J, enum js_Class type, js_Object *prototype)
 	return obj;
 }
 
-js_Property *jsV_getownproperty(js_State *J, js_Object *obj, const char *name)
+js_Property*
+jsV_getownproperty(js_State *J, js_Object *obj, const char *name)
 {
 	return lookup(obj->properties, name);
 }
 
-js_Property *jsV_getpropertyx(js_State *J, js_Object *obj, const char *name, int *own)
+js_Property*
+jsV_getpropertyx(js_State *J, js_Object *obj, const char *name, int *own)
 {
 	*own = 1;
 	do {
@@ -196,7 +206,8 @@ js_Property *jsV_getpropertyx(js_State *J, js_Object *obj, const char *name, int
 	return NULL;
 }
 
-js_Property *jsV_getproperty(js_State *J, js_Object *obj, const char *name)
+js_Property*
+jsV_getproperty(js_State *J, js_Object *obj, const char *name)
 {
 	do {
 		js_Property *ref = lookup(obj->properties, name);
@@ -207,7 +218,8 @@ js_Property *jsV_getproperty(js_State *J, js_Object *obj, const char *name)
 	return NULL;
 }
 
-static js_Property *jsV_getenumproperty(js_State *J, js_Object *obj, const char *name)
+static js_Property*
+jsV_getenumproperty(js_State *J, js_Object *obj, const char *name)
 {
 	do {
 		js_Property *ref = lookup(obj->properties, name);
@@ -218,7 +230,8 @@ static js_Property *jsV_getenumproperty(js_State *J, js_Object *obj, const char 
 	return NULL;
 }
 
-js_Property *jsV_setproperty(js_State *J, js_Object *obj, const char *name)
+js_Property*
+jsV_setproperty(js_State *J, js_Object *obj, const char *name)
 {
 	js_Property *result;
 
@@ -234,14 +247,17 @@ js_Property *jsV_setproperty(js_State *J, js_Object *obj, const char *name)
 	return result;
 }
 
-void jsV_delproperty(js_State *J, js_Object *obj, const char *name)
+void
+jsV_delproperty(js_State *J, js_Object *obj, const char *name)
 {
 	obj->properties = deleteproperty(J, obj, obj->properties, name);
 }
 
 /* Flatten hierarchy of enumerable properties into an iterator object */
 
-static js_Iterator *itnewnode(js_State *J, const char *name, js_Iterator *next) {
+static js_Iterator*
+itnewnode(js_State *J, const char *name, js_Iterator *next)
+{
 	int n = strlen(name) + 1;
 	js_Iterator *node = js_malloc(J, offsetof(js_Iterator, name) + n);
 	node->next = next;
@@ -249,7 +265,8 @@ static js_Iterator *itnewnode(js_State *J, const char *name, js_Iterator *next) 
 	return node;
 }
 
-static js_Iterator *itwalk(js_State *J, js_Iterator *iter, js_Property *prop, js_Object *seen)
+static js_Iterator*
+itwalk(js_State *J, js_Iterator *iter, js_Property *prop, js_Object *seen)
 {
 	if (prop->right != &sentinel)
 		iter = itwalk(J, iter, prop->right, seen);
@@ -263,7 +280,8 @@ static js_Iterator *itwalk(js_State *J, js_Iterator *iter, js_Property *prop, js
 	return iter;
 }
 
-static js_Iterator *itflatten(js_State *J, js_Object *obj)
+static js_Iterator*
+itflatten(js_State *J, js_Object *obj)
 {
 	js_Iterator *iter = NULL;
 	if (obj->prototype)
@@ -273,7 +291,8 @@ static js_Iterator *itflatten(js_State *J, js_Object *obj)
 	return iter;
 }
 
-js_Object *jsV_newiterator(js_State *J, js_Object *obj, int own)
+js_Object*
+jsV_newiterator(js_State *J, js_Object *obj, int own)
 {
 	js_Object *io = jsV_newobject(J, JS_CITERATOR, NULL);
 	io->u.iter.target = obj;
@@ -297,7 +316,8 @@ js_Object *jsV_newiterator(js_State *J, js_Object *obj, int own)
 	return io;
 }
 
-const char *jsV_nextiterator(js_State *J, js_Object *io)
+const char*
+jsV_nextiterator(js_State *J, js_Object *io)
 {
 	if (io->type != JS_CITERATOR)
 		js_typeerror(J, "not an iterator");
@@ -317,7 +337,8 @@ const char *jsV_nextiterator(js_State *J, js_Object *io)
 
 /* Walk all the properties and delete them one by one for arrays */
 
-void jsV_resizearray(js_State *J, js_Object *obj, int newlen)
+void
+jsV_resizearray(js_State *J, js_Object *obj, int newlen)
 {
 	char buf[32];
 	const char *s;

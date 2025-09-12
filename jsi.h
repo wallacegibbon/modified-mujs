@@ -26,18 +26,20 @@
 #pragma warning(disable:4244) /* implicit conversion from double to int */
 #pragma warning(disable:4267) /* implicit conversion of int to smaller int */
 #pragma warning(disable:4090) /* broken const warnings */
-#define inline __inline
+#define inline		__inline
 #if _MSC_VER < 1900 /* MSVC 2015 */
-#define snprintf jsW_snprintf
-#define vsnprintf jsW_vsnprintf
-static int jsW_vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
+#define snprintf	jsW_snprintf
+#define vsnprintf	jsW_vsnprintf
+static int
+jsW_vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
 {
 	int n;
 	n = _vsnprintf(str, size, fmt, ap);
 	str[size-1] = 0;
 	return n;
 }
-static int jsW_snprintf(char *str, size_t size, const char *fmt, ...)
+static int
+jsW_snprintf(char *str, size_t size, const char *fmt, ...)
 {
 	int n;
 	va_list ap;
@@ -48,21 +50,21 @@ static int jsW_snprintf(char *str, size_t size, const char *fmt, ...)
 }
 #endif
 #if _MSC_VER <= 1700 /* <= MSVC 2012 */
-#define isnan(x) _isnan(x)
-#define isinf(x) (!_finite(x))
-#define isfinite(x) _finite(x)
+#define isnan(x)	_isnan(x)
+#define isinf(x)	(!_finite(x))
+#define isfinite(x)	_finite(x)
 static __inline int signbit(double x) { __int64 i; memcpy(&i, &x, 8); return i>>63; }
-#define INFINITY (DBL_MAX+DBL_MAX)
-#define NAN (INFINITY-INFINITY)
+#define INFINITY	(DBL_MAX+DBL_MAX)
+#define NAN		(INFINITY-INFINITY)
 #endif
 #endif
 
-#define soffsetof(x,y) ((int)offsetof(x,y))
-#define nelem(a) (int)(sizeof (a) / sizeof (a)[0])
+#define soffsetof(x,y)	((int)offsetof(x,y))
+#define nelem(a)	(int)(sizeof (a) / sizeof (a)[0])
 
-void *js_malloc(js_State *J, int size);
-void *js_realloc(js_State *J, void *ptr, int size);
-void js_free(js_State *J, void *ptr);
+void*	js_malloc(js_State *J, int size);
+void*	js_realloc(js_State *J, void *ptr, int size);
+void	js_free(js_State *J, void *ptr);
 
 typedef union js_Value js_Value;
 typedef struct js_Regexp js_Regexp;
@@ -78,17 +80,17 @@ typedef struct js_StackTrace js_StackTrace;
 /* Limits */
 
 #ifndef JS_STACKSIZE
-#define JS_STACKSIZE 4096	/* value stack size */
+#define JS_STACKSIZE	4096	/* value stack size */
 #endif
 #ifndef JS_ENVLIMIT
-#define JS_ENVLIMIT 1024	/* environment stack size */
+#define JS_ENVLIMIT	1024	/* environment stack size */
 #endif
 #ifndef JS_TRYLIMIT
-#define JS_TRYLIMIT 64		/* exception stack size */
+#define JS_TRYLIMIT	64	/* exception stack size */
 #endif
 
 #ifndef JS_ARRAYLIMIT
-#define JS_ARRAYLIMIT (1<<26)	/* limit arrays to 64M entries (1G of flat array data) */
+#define JS_ARRAYLIMIT	(1<<26)	/* limit arrays to 64M entries (1G of flat array data) */
 #endif
 
 #ifndef JS_GCFACTOR
@@ -100,66 +102,66 @@ typedef struct js_StackTrace js_StackTrace;
  * The bigger the value the less impact GC has on overall performance, but more
  * memory is used and individual GC pauses are longer (but fewer).
  */
-#define JS_GCFACTOR 5.0		/* memory overhead factor >= 1.0 */
+#define JS_GCFACTOR	5.0	/* memory overhead factor >= 1.0 */
 #endif
 
 #ifndef JS_ASTLIMIT
-#define JS_ASTLIMIT 400		/* max nested expressions */
+#define JS_ASTLIMIT	400	/* max nested expressions */
 #endif
 
 #ifndef JS_STRLIMIT
-#define JS_STRLIMIT (1<<28)	/* max string length */
+#define JS_STRLIMIT	(1<<28)	/* max string length */
 #endif
 
 /* instruction size -- change to int if you get integer overflow syntax errors */
 
 #ifdef JS_INSTRUCTION
-typedef JS_INSTRUCTION js_Instruction;
+typedef JS_INSTRUCTION	js_Instruction;
 #else
-typedef unsigned short js_Instruction;
+typedef unsigned short	js_Instruction;
 #endif
 
 /* String interning */
 
-char *js_strdup(js_State *J, const char *s);
-const char *js_intern(js_State *J, const char *s);
-void jsS_dumpstrings(js_State *J);
-void jsS_freestrings(js_State *J);
+char*	js_strdup(js_State *J, const char *s);
+const char*	js_intern(js_State *J, const char *s);
+void	jsS_dumpstrings(js_State *J);
+void	jsS_freestrings(js_State *J);
 
 /* Portable strtod and printf float formatting */
 
-void js_fmtexp(char *p, int e);
-int js_grisu2(double v, char *buffer, int *K);
-double js_strtod(const char *as, char **aas);
+void	js_fmtexp(char *p, int e);
+int	js_grisu2(double v, char *buffer, int *K);
+double	js_strtod(const char *as, char **aas);
 
-double js_strtol(const char *s, char **ep, int radix);
+double	js_strtol(const char *s, char **ep, int radix);
 
 /* Private stack functions */
 
-void js_newarguments(js_State *J);
-void js_newfunction(js_State *J, js_Function *function, js_Environment *scope);
-void js_newscript(js_State *J, js_Function *function, js_Environment *scope);
-void js_loadeval(js_State *J, const char *filename, const char *source);
+void	js_newarguments(js_State *J);
+void	js_newfunction(js_State *J, js_Function *function, js_Environment *scope);
+void	js_newscript(js_State *J, js_Function *function, js_Environment *scope);
+void	js_loadeval(js_State *J, const char *filename, const char *source);
 
-js_Regexp *js_toregexp(js_State *J, int idx);
-int js_isarrayindex(js_State *J, const char *str, int *idx);
-int js_runeat(js_State *J, const char *s, int i);
-int js_utflen(const char *s);
-int js_utfptrtoidx(const char *s, const char *p);
+js_Regexp*	js_toregexp(js_State *J, int idx);
+int	js_isarrayindex(js_State *J, const char *str, int *idx);
+int	js_runeat(js_State *J, const char *s, int i);
+int	js_utflen(const char *s);
+int	js_utfptrtoidx(const char *s, const char *p);
 
-void js_dup(js_State *J);
-void js_dup2(js_State *J);
-void js_rot2(js_State *J);
-void js_rot3(js_State *J);
-void js_rot4(js_State *J);
-void js_rot2pop1(js_State *J);
-void js_rot3pop2(js_State *J);
-void js_dup1rot3(js_State *J);
-void js_dup1rot4(js_State *J);
+void	js_dup(js_State *J);
+void	js_dup2(js_State *J);
+void	js_rot2(js_State *J);
+void	js_rot3(js_State *J);
+void	js_rot4(js_State *J);
+void	js_rot2pop1(js_State *J);
+void	js_rot3pop2(js_State *J);
+void	js_dup1rot3(js_State *J);
+void	js_dup1rot4(js_State *J);
 
-void js_RegExp_prototype_exec(js_State *J, js_Regexp *re, const char *text);
+void	js_RegExp_prototype_exec(js_State *J, js_Regexp *re, const char *text);
 
-void js_trap(js_State *J, int pc); /* dump stack and environment to stdout */
+void	js_trap(js_State *J, int pc); /* dump stack and environment to stdout */
 
 struct js_StackTrace {
 	const char *name;
@@ -179,18 +181,17 @@ struct js_Jumpbuf {
 	js_Instruction *pc;
 };
 
-void *js_savetrypc(js_State *J, js_Instruction *pc);
+void*	js_savetrypc(js_State *J, js_Instruction *pc);
 
-#define js_trypc(J, PC) \
-	setjmp(js_savetrypc(J, PC))
+#define js_trypc(J, PC) setjmp(js_savetrypc(J, PC))
 
 /* String buffer */
 
 typedef struct js_Buffer { int n, m; char s[64]; } js_Buffer;
 
-void js_putc(js_State *J, js_Buffer **sbp, int c);
-void js_puts(js_State *J, js_Buffer **sb, const char *s);
-void js_putm(js_State *J, js_Buffer **sb, const char *s, const char *e);
+void	js_putc(js_State *J, js_Buffer **sbp, int c);
+void	js_puts(js_State *J, js_Buffer **sb, const char *s);
+void	js_putm(js_State *J, js_Buffer **sb, const char *s, const char *e);
 
 /* State struct */
 
@@ -434,49 +435,49 @@ struct js_Environment {
 };
 
 /* jsrun.c */
-js_Environment *jsR_newenvironment(js_State *J, js_Object *variables, js_Environment *outer);
-js_String *jsV_newmemstring(js_State *J, const char *s, int n);
-js_Value *js_tovalue(js_State *J, int idx);
-void js_toprimitive(js_State *J, int idx, int hint);
-js_Object *js_toobject(js_State *J, int idx);
-void js_pushvalue(js_State *J, js_Value v);
-void js_pushobject(js_State *J, js_Object *v);
-void jsR_unflattenarray(js_State *J, js_Object *obj);
+js_Environment*	jsR_newenvironment(js_State *J, js_Object *variables, js_Environment *outer);
+js_String*	jsV_newmemstring(js_State *J, const char *s, int n);
+js_Value*	js_tovalue(js_State *J, int idx);
+void	js_toprimitive(js_State *J, int idx, int hint);
+js_Object*	js_toobject(js_State *J, int idx);
+void	js_pushvalue(js_State *J, js_Value v);
+void	js_pushobject(js_State *J, js_Object *v);
+void	jsR_unflattenarray(js_State *J, js_Object *obj);
 
 /* jsvalue.c */
-int jsV_toboolean(js_State *J, js_Value *v);
-double jsV_tonumber(js_State *J, js_Value *v);
-double jsV_tointeger(js_State *J, js_Value *v);
-const char *jsV_tostring(js_State *J, js_Value *v);
-js_Object *jsV_toobject(js_State *J, js_Value *v);
-void jsV_toprimitive(js_State *J, js_Value *v, int preferred);
+int	jsV_toboolean(js_State *J, js_Value *v);
+double	jsV_tonumber(js_State *J, js_Value *v);
+double	jsV_tointeger(js_State *J, js_Value *v);
+const char*	jsV_tostring(js_State *J, js_Value *v);
+js_Object*	jsV_toobject(js_State *J, js_Value *v);
+void	jsV_toprimitive(js_State *J, js_Value *v, int preferred);
 
-const char *js_itoa(char *buf, int a);
-double js_stringtofloat(const char *s, char **ep);
-int jsV_numbertointeger(double n);
-int jsV_numbertoint32(double n);
-unsigned int jsV_numbertouint32(double n);
-short jsV_numbertoint16(double n);
-unsigned short jsV_numbertouint16(double n);
-const char *jsV_numbertostring(js_State *J, char buf[32], double number);
-double jsV_stringtonumber(js_State *J, const char *string);
+const char*	js_itoa(char *buf, int a);
+double	js_stringtofloat(const char *s, char **ep);
+int	jsV_numbertointeger(double n);
+int	jsV_numbertoint32(double n);
+unsigned int	jsV_numbertouint32(double n);
+short	jsV_numbertoint16(double n);
+unsigned short	jsV_numbertouint16(double n);
+const char*	jsV_numbertostring(js_State *J, char buf[32], double number);
+double	jsV_stringtonumber(js_State *J, const char *string);
 
 /* jsproperty.c */
-js_Object *jsV_newobject(js_State *J, enum js_Class type, js_Object *prototype);
-js_Property *jsV_getownproperty(js_State *J, js_Object *obj, const char *name);
-js_Property *jsV_getpropertyx(js_State *J, js_Object *obj, const char *name, int *own);
-js_Property *jsV_getproperty(js_State *J, js_Object *obj, const char *name);
-js_Property *jsV_setproperty(js_State *J, js_Object *obj, const char *name);
-js_Property *jsV_nextproperty(js_State *J, js_Object *obj, const char *name);
-void jsV_delproperty(js_State *J, js_Object *obj, const char *name);
+js_Object*	jsV_newobject(js_State *J, enum js_Class type, js_Object *prototype);
+js_Property*	jsV_getownproperty(js_State *J, js_Object *obj, const char *name);
+js_Property*	jsV_getpropertyx(js_State *J, js_Object *obj, const char *name, int *own);
+js_Property*	jsV_getproperty(js_State *J, js_Object *obj, const char *name);
+js_Property*	jsV_setproperty(js_State *J, js_Object *obj, const char *name);
+js_Property*	jsV_nextproperty(js_State *J, js_Object *obj, const char *name);
+void	jsV_delproperty(js_State *J, js_Object *obj, const char *name);
 
-js_Object *jsV_newiterator(js_State *J, js_Object *obj, int own);
-const char *jsV_nextiterator(js_State *J, js_Object *iter);
+js_Object*	jsV_newiterator(js_State *J, js_Object *obj, int own);
+const char*	jsV_nextiterator(js_State *J, js_Object *iter);
 
-void jsV_resizearray(js_State *J, js_Object *obj, int newlen);
+void	jsV_resizearray(js_State *J, js_Object *obj, int newlen);
 
-void jsV_unflattenarray(js_State *J, js_Object *obj);
-void jsV_growarray(js_State *J, js_Object *obj);
+void	jsV_unflattenarray(js_State *J, js_Object *obj);
+void	jsV_growarray(js_State *J, js_Object *obj);
 
 /* Lexer */
 
@@ -544,17 +545,17 @@ enum {
 	TK_WITH,
 };
 
-int jsY_iswhite(int c);
-int jsY_isnewline(int c);
-int jsY_ishex(int c);
-int jsY_tohex(int c);
+int	jsY_iswhite(int c);
+int	jsY_isnewline(int c);
+int	jsY_ishex(int c);
+int	jsY_tohex(int c);
 
-const char *jsY_tokenstring(int token);
-int jsY_findword(const char *s, const char **list, int num);
+const char*	jsY_tokenstring(int token);
+int	jsY_findword(const char *s, const char **list, int num);
 
-void jsY_initlex(js_State *J, const char *filename, const char *source);
-int jsY_lex(js_State *J);
-int jsY_lexjson(js_State *J);
+void	jsY_initlex(js_State *J, const char *filename, const char *source);
+int	jsY_lex(js_State *J);
+int	jsY_lexjson(js_State *J);
 
 /* Parser */
 
@@ -689,9 +690,9 @@ struct js_Ast {
 	js_Ast *gcnext; /* next in alloc list */
 };
 
-js_Ast *jsP_parsefunction(js_State *J, const char *filename, const char *params, const char *body);
-js_Ast *jsP_parse(js_State *J, const char *filename, const char *source);
-void jsP_freeparse(js_State *J);
+js_Ast*	jsP_parsefunction(js_State *J, const char *filename, const char *params, const char *body);
+js_Ast*	jsP_parse(js_State *J, const char *filename, const char *source);
+void	jsP_freeparse(js_State *J);
 
 /* Compiler */
 
@@ -826,26 +827,26 @@ struct js_Function {
 	int gcmark;
 };
 
-js_Function *jsC_compilefunction(js_State *J, js_Ast *prog);
-js_Function *jsC_compilescript(js_State *J, js_Ast *prog, int default_strict);
+js_Function*	jsC_compilefunction(js_State *J, js_Ast *prog);
+js_Function*	jsC_compilescript(js_State *J, js_Ast *prog, int default_strict);
 
 /* Builtins */
 
-void jsB_init(js_State *J);
-void jsB_initobject(js_State *J);
-void jsB_initarray(js_State *J);
-void jsB_initfunction(js_State *J);
-void jsB_initboolean(js_State *J);
-void jsB_initnumber(js_State *J);
-void jsB_initstring(js_State *J);
-void jsB_initregexp(js_State *J);
-void jsB_initerror(js_State *J);
-void jsB_initmath(js_State *J);
-void jsB_initjson(js_State *J);
-void jsB_initdate(js_State *J);
+void	jsB_init(js_State *J);
+void	jsB_initobject(js_State *J);
+void	jsB_initarray(js_State *J);
+void	jsB_initfunction(js_State *J);
+void	jsB_initboolean(js_State *J);
+void	jsB_initnumber(js_State *J);
+void	jsB_initstring(js_State *J);
+void	jsB_initregexp(js_State *J);
+void	jsB_initerror(js_State *J);
+void	jsB_initmath(js_State *J);
+void	jsB_initjson(js_State *J);
+void	jsB_initdate(js_State *J);
 
-void jsB_propf(js_State *J, const char *name, js_CFunction cfun, int n);
-void jsB_propn(js_State *J, const char *name, double number);
-void jsB_props(js_State *J, const char *name, const char *string);
+void	jsB_propf(js_State *J, const char *name, js_CFunction cfun, int n);
+void	jsB_propn(js_State *J, const char *name, double number);
+void	jsB_props(js_State *J, const char *name, const char *string);
 
 #endif

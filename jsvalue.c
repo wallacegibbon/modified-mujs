@@ -4,7 +4,8 @@
 #define JSV_ISSTRING(v) (v->t.type==JS_TSHRSTR || v->t.type==JS_TMEMSTR || v->t.type==JS_TLITSTR)
 #define JSV_TOSTRING(v) (v->t.type==JS_TSHRSTR ? v->u.shrstr : v->t.type==JS_TLITSTR ? v->u.litstr : v->t.type==JS_TMEMSTR ? v->u.memstr->p : "")
 
-double js_strtol(const char *s, char **p, int base)
+double
+js_strtol(const char *s, char **p, int base)
 {
 	/* ascii -> digit value. max base is 36. */
 	static const unsigned char table[256] = {
@@ -38,7 +39,8 @@ double js_strtol(const char *s, char **p, int base)
 	return x;
 }
 
-int jsV_numbertointeger(double n)
+int
+jsV_numbertointeger(double n)
 {
 	if (n == 0) return 0;
 	if (isnan(n)) return 0;
@@ -48,7 +50,8 @@ int jsV_numbertointeger(double n)
 	return (int)n;
 }
 
-int jsV_numbertoint32(double n)
+int
+jsV_numbertoint32(double n)
 {
 	double two32 = 4294967296.0;
 	double two31 = 2147483648.0;
@@ -64,23 +67,27 @@ int jsV_numbertoint32(double n)
 		return n;
 }
 
-unsigned int jsV_numbertouint32(double n)
+unsigned int
+jsV_numbertouint32(double n)
 {
 	return (unsigned int)jsV_numbertoint32(n);
 }
 
-short jsV_numbertoint16(double n)
+short
+jsV_numbertoint16(double n)
 {
 	return jsV_numbertoint32(n);
 }
 
-unsigned short jsV_numbertouint16(double n)
+unsigned short
+jsV_numbertouint16(double n)
 {
 	return jsV_numbertoint32(n);
 }
 
 /* obj.toString() */
-static int jsV_toString(js_State *J, js_Object *obj)
+static int
+jsV_toString(js_State *J, js_Object *obj)
 {
 	js_pushobject(J, obj);
 	js_getproperty(J, -1, "toString");
@@ -97,7 +104,8 @@ static int jsV_toString(js_State *J, js_Object *obj)
 }
 
 /* obj.valueOf() */
-static int jsV_valueOf(js_State *J, js_Object *obj)
+static int
+jsV_valueOf(js_State *J, js_Object *obj)
 {
 	js_pushobject(J, obj);
 	js_getproperty(J, -1, "valueOf");
@@ -114,7 +122,8 @@ static int jsV_valueOf(js_State *J, js_Object *obj)
 }
 
 /* ToPrimitive() on a value */
-void jsV_toprimitive(js_State *J, js_Value *v, int preferred)
+void
+jsV_toprimitive(js_State *J, js_Value *v, int preferred)
 {
 	js_Object *obj;
 
@@ -149,7 +158,8 @@ void jsV_toprimitive(js_State *J, js_Value *v, int preferred)
 }
 
 /* ToBoolean() on a value */
-int jsV_toboolean(js_State *J, js_Value *v)
+int
+jsV_toboolean(js_State *J, js_Value *v)
 {
 	switch (v->t.type) {
 	default:
@@ -164,7 +174,8 @@ int jsV_toboolean(js_State *J, js_Value *v)
 	}
 }
 
-const char *js_itoa(char *out, int v)
+const char*
+js_itoa(char *out, int v)
 {
 	char buf[32], *s = out;
 	unsigned int a;
@@ -187,7 +198,8 @@ const char *js_itoa(char *out, int v)
 	return out;
 }
 
-double js_stringtofloat(const char *s, char **ep)
+double
+js_stringtofloat(const char *s, char **ep)
 {
 	char *end;
 	double n;
@@ -223,7 +235,8 @@ double js_stringtofloat(const char *s, char **ep)
 }
 
 /* ToNumber() on a string */
-double jsV_stringtonumber(js_State *J, const char *s)
+double
+jsV_stringtonumber(js_State *J, const char *s)
 {
 	char *e;
 	double n;
@@ -244,7 +257,8 @@ double jsV_stringtonumber(js_State *J, const char *s)
 }
 
 /* ToNumber() on a value */
-double jsV_tonumber(js_State *J, js_Value *v)
+double
+jsV_tonumber(js_State *J, js_Value *v)
 {
 	switch (v->t.type) {
 	default:
@@ -261,13 +275,15 @@ double jsV_tonumber(js_State *J, js_Value *v)
 	}
 }
 
-double jsV_tointeger(js_State *J, js_Value *v)
+double
+jsV_tointeger(js_State *J, js_Value *v)
 {
 	return jsV_numbertointeger(jsV_tonumber(J, v));
 }
 
 /* ToString() on a number */
-const char *jsV_numbertostring(js_State *J, char buf[32], double f)
+const char*
+jsV_numbertostring(js_State *J, char buf[32], double f)
 {
 	char digits[32], *p = buf, *s = digits;
 	int exp, ndigits, point;
@@ -327,7 +343,8 @@ const char *jsV_numbertostring(js_State *J, char buf[32], double f)
 }
 
 /* ToString() on a value */
-const char *jsV_tostring(js_State *J, js_Value *v)
+const char*
+jsV_tostring(js_State *J, js_Value *v)
 {
 	char buf[32];
 	const char *p;
@@ -364,21 +381,24 @@ const char *jsV_tostring(js_State *J, js_Value *v)
 
 /* Objects */
 
-static js_Object *jsV_newboolean(js_State *J, int v)
+static js_Object*
+jsV_newboolean(js_State *J, int v)
 {
 	js_Object *obj = jsV_newobject(J, JS_CBOOLEAN, J->Boolean_prototype);
 	obj->u.boolean = v;
 	return obj;
 }
 
-static js_Object *jsV_newnumber(js_State *J, double v)
+static js_Object*
+jsV_newnumber(js_State *J, double v)
 {
 	js_Object *obj = jsV_newobject(J, JS_CNUMBER, J->Number_prototype);
 	obj->u.number = v;
 	return obj;
 }
 
-static js_Object *jsV_newstring(js_State *J, const char *v)
+static js_Object*
+jsV_newstring(js_State *J, const char *v)
 {
 	js_Object *obj = jsV_newobject(J, JS_CSTRING, J->String_prototype);
 	size_t n = strlen(v);
@@ -393,7 +413,8 @@ static js_Object *jsV_newstring(js_State *J, const char *v)
 }
 
 /* ToObject() on a value */
-js_Object *jsV_toobject(js_State *J, js_Value *v)
+js_Object*
+jsV_toobject(js_State *J, js_Value *v)
 {
 	js_Object *o;
 	switch (v->t.type) {
@@ -412,7 +433,8 @@ js_Object *jsV_toobject(js_State *J, js_Value *v)
 	return o;
 }
 
-void js_newobjectx(js_State *J)
+void
+js_newobjectx(js_State *J)
 {
 	js_Object *prototype = NULL;
 	if (js_isobject(J, -1))
@@ -421,39 +443,46 @@ void js_newobjectx(js_State *J)
 	js_pushobject(J, jsV_newobject(J, JS_COBJECT, prototype));
 }
 
-void js_newobject(js_State *J)
+void
+js_newobject(js_State *J)
 {
 	js_pushobject(J, jsV_newobject(J, JS_COBJECT, J->Object_prototype));
 }
 
-void js_newarguments(js_State *J)
+void
+js_newarguments(js_State *J)
 {
 	js_pushobject(J, jsV_newobject(J, JS_CARGUMENTS, J->Object_prototype));
 }
 
-void js_newarray(js_State *J)
+void
+js_newarray(js_State *J)
 {
 	js_Object *obj = jsV_newobject(J, JS_CARRAY, J->Array_prototype);
 	obj->u.a.simple = 1;
 	js_pushobject(J, obj);
 }
 
-void js_newboolean(js_State *J, int v)
+void
+js_newboolean(js_State *J, int v)
 {
 	js_pushobject(J, jsV_newboolean(J, v));
 }
 
-void js_newnumber(js_State *J, double v)
+void
+js_newnumber(js_State *J, double v)
 {
 	js_pushobject(J, jsV_newnumber(J, v));
 }
 
-void js_newstring(js_State *J, const char *v)
+void
+js_newstring(js_State *J, const char *v)
 {
 	js_pushobject(J, jsV_newstring(J, v));
 }
 
-void js_newfunction(js_State *J, js_Function *fun, js_Environment *scope)
+void
+js_newfunction(js_State *J, js_Function *fun, js_Environment *scope)
 {
 	js_Object *obj = jsV_newobject(J, JS_CFUNCTION, J->Function_prototype);
 	obj->u.f.function = fun;
@@ -471,7 +500,8 @@ void js_newfunction(js_State *J, js_Function *fun, js_Environment *scope)
 	}
 }
 
-void js_newscript(js_State *J, js_Function *fun, js_Environment *scope)
+void
+js_newscript(js_State *J, js_Function *fun, js_Environment *scope)
 {
 	js_Object *obj = jsV_newobject(J, JS_CSCRIPT, NULL);
 	obj->u.f.function = fun;
@@ -479,7 +509,8 @@ void js_newscript(js_State *J, js_Function *fun, js_Environment *scope)
 	js_pushobject(J, obj);
 }
 
-void js_newcfunctionx(js_State *J, js_CFunction cfun, const char *name, int length, void *data, js_Finalize finalize)
+void
+js_newcfunctionx(js_State *J, js_CFunction cfun, const char *name, int length, void *data, js_Finalize finalize)
 {
 	js_Object *obj;
 
@@ -512,13 +543,15 @@ void js_newcfunctionx(js_State *J, js_CFunction cfun, const char *name, int leng
 	}
 }
 
-void js_newcfunction(js_State *J, js_CFunction cfun, const char *name, int length)
+void
+js_newcfunction(js_State *J, js_CFunction cfun, const char *name, int length)
 {
 	js_newcfunctionx(J, cfun, name, length, NULL, NULL);
 }
 
 /* prototype -- constructor */
-void js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon, const char *name, int length)
+void
+js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon, const char *name, int length)
 {
 	js_Object *obj = jsV_newobject(J, JS_CCFUNCTION, J->Function_prototype);
 	obj->u.c.name = name;
@@ -536,7 +569,8 @@ void js_newcconstructor(js_State *J, js_CFunction cfun, js_CFunction ccon, const
 	}
 }
 
-void js_newuserdatax(js_State *J, const char *tag, void *data, js_HasProperty has, js_Put put, js_Delete delete, js_Finalize finalize)
+void
+js_newuserdatax(js_State *J, const char *tag, void *data, js_HasProperty has, js_Put put, js_Delete delete, js_Finalize finalize)
 {
 	js_Object *prototype = NULL;
 	js_Object *obj;
@@ -564,14 +598,16 @@ void js_newuserdatax(js_State *J, const char *tag, void *data, js_HasProperty ha
 	js_pushobject(J, obj);
 }
 
-void js_newuserdata(js_State *J, const char *tag, void *data, js_Finalize finalize)
+void
+js_newuserdata(js_State *J, const char *tag, void *data, js_Finalize finalize)
 {
 	js_newuserdatax(J, tag, data, NULL, NULL, NULL, finalize);
 }
 
 /* Non-trivial operations on values. These are implemented using the stack. */
 
-int js_instanceof(js_State *J)
+int
+js_instanceof(js_State *J)
 {
 	js_Object *O, *V;
 
@@ -597,7 +633,8 @@ int js_instanceof(js_State *J)
 	return 0;
 }
 
-void js_concat(js_State *J)
+void
+js_concat(js_State *J)
 {
 	js_toprimitive(J, -2, JS_HNONE);
 	js_toprimitive(J, -1, JS_HNONE);
@@ -626,7 +663,8 @@ void js_concat(js_State *J)
 	}
 }
 
-int js_compare(js_State *J, int *okay)
+int
+js_compare(js_State *J, int *okay)
 {
 	js_toprimitive(J, -2, JS_HNUMBER);
 	js_toprimitive(J, -1, JS_HNUMBER);
@@ -643,7 +681,8 @@ int js_compare(js_State *J, int *okay)
 	}
 }
 
-int js_equal(js_State *J)
+int
+js_equal(js_State *J)
 {
 	js_Value *x = js_tovalue(J, -2);
 	js_Value *y = js_tovalue(J, -1);
@@ -690,7 +729,8 @@ retry:
 	return 0;
 }
 
-int js_strictequal(js_State *J)
+int
+js_strictequal(js_State *J)
 {
 	js_Value *x = js_tovalue(J, -2);
 	js_Value *y = js_tovalue(J, -1);

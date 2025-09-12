@@ -3,7 +3,8 @@
 #include <assert.h>
 #include <errno.h>
 
-static int js_ptry(js_State *J) {
+static int
+js_ptry(js_State *J) {
 	if (J->trytop == JS_TRYLIMIT) {
 		J->stack[J->top].t.type = JS_TLITSTR;
 		J->stack[J->top].u.litstr = "exception stack overflow";
@@ -13,7 +14,8 @@ static int js_ptry(js_State *J) {
 	return 0;
 }
 
-static void *js_defaultalloc(void *actx, void *ptr, int size)
+static void*
+js_defaultalloc(void *actx, void *ptr, int size)
 {
 	if (size == 0) {
 		free(ptr);
@@ -22,19 +24,22 @@ static void *js_defaultalloc(void *actx, void *ptr, int size)
 	return realloc(ptr, (size_t)size);
 }
 
-static void js_defaultreport(js_State *J, const char *message)
+static void
+js_defaultreport(js_State *J, const char *message)
 {
 	fputs(message, stderr);
 	fputc('\n', stderr);
 }
 
-static void js_defaultpanic(js_State *J)
+static void
+js_defaultpanic(js_State *J)
 {
 	js_report(J, "uncaught exception");
 	/* return to javascript to abort */
 }
 
-int js_ploadstring(js_State *J, const char *filename, const char *source)
+int
+js_ploadstring(js_State *J, const char *filename, const char *source)
 {
 	if (js_ptry(J))
 		return 1;
@@ -45,7 +50,8 @@ int js_ploadstring(js_State *J, const char *filename, const char *source)
 	return 0;
 }
 
-int js_ploadfile(js_State *J, const char *filename)
+int
+js_ploadfile(js_State *J, const char *filename)
 {
 	if (js_ptry(J))
 		return 1;
@@ -56,7 +62,8 @@ int js_ploadfile(js_State *J, const char *filename)
 	return 0;
 }
 
-const char *js_trystring(js_State *J, int idx, const char *error)
+const char*
+js_trystring(js_State *J, int idx, const char *error)
 {
 	const char *s;
 	if (js_ptry(J)) {
@@ -72,7 +79,8 @@ const char *js_trystring(js_State *J, int idx, const char *error)
 	return s;
 }
 
-double js_trynumber(js_State *J, int idx, double error)
+double
+js_trynumber(js_State *J, int idx, double error)
 {
 	double v;
 	if (js_ptry(J)) {
@@ -88,7 +96,8 @@ double js_trynumber(js_State *J, int idx, double error)
 	return v;
 }
 
-int js_tryinteger(js_State *J, int idx, int error)
+int
+js_tryinteger(js_State *J, int idx, int error)
 {
 	int v;
 	if (js_ptry(J)) {
@@ -104,7 +113,8 @@ int js_tryinteger(js_State *J, int idx, int error)
 	return v;
 }
 
-int js_tryboolean(js_State *J, int idx, int error)
+int
+js_tryboolean(js_State *J, int idx, int error)
 {
 	int v;
 	if (js_ptry(J)) {
@@ -120,7 +130,8 @@ int js_tryboolean(js_State *J, int idx, int error)
 	return v;
 }
 
-static void js_loadstringx(js_State *J, const char *filename, const char *source, int iseval)
+static void
+js_loadstringx(js_State *J, const char *filename, const char *source, int iseval)
 {
 	js_Ast *P;
 	js_Function *F;
@@ -138,17 +149,20 @@ static void js_loadstringx(js_State *J, const char *filename, const char *source
 	js_endtry(J);
 }
 
-void js_loadeval(js_State *J, const char *filename, const char *source)
+void
+js_loadeval(js_State *J, const char *filename, const char *source)
 {
 	js_loadstringx(J, filename, source, 1);
 }
 
-void js_loadstring(js_State *J, const char *filename, const char *source)
+void
+js_loadstring(js_State *J, const char *filename, const char *source)
 {
 	js_loadstringx(J, filename, source, 0);
 }
 
-void js_loadfile(js_State *J, const char *filename)
+void
+js_loadfile(js_State *J, const char *filename)
 {
 	FILE *f;
 	char *s, *p;
@@ -212,7 +226,8 @@ void js_loadfile(js_State *J, const char *filename)
 	js_endtry(J);
 }
 
-int js_dostring(js_State *J, const char *source)
+int
+js_dostring(js_State *J, const char *source)
 {
 	if (js_ptry(J)) {
 		js_report(J, "exception stack overflow");
@@ -232,7 +247,8 @@ int js_dostring(js_State *J, const char *source)
 	return 0;
 }
 
-int js_dofile(js_State *J, const char *filename)
+int
+js_dofile(js_State *J, const char *filename)
 {
 	if (js_ptry(J)) {
 		js_report(J, "exception stack overflow");
@@ -252,35 +268,41 @@ int js_dofile(js_State *J, const char *filename)
 	return 0;
 }
 
-js_Panic js_atpanic(js_State *J, js_Panic panic)
+js_Panic
+js_atpanic(js_State *J, js_Panic panic)
 {
 	js_Panic old = J->panic;
 	J->panic = panic;
 	return old;
 }
 
-void js_report(js_State *J, const char *message)
+void
+js_report(js_State *J, const char *message)
 {
 	if (J->report)
 		J->report(J, message);
 }
 
-void js_setreport(js_State *J, js_Report report)
+void
+js_setreport(js_State *J, js_Report report)
 {
 	J->report = report;
 }
 
-void js_setcontext(js_State *J, void *uctx)
+void
+js_setcontext(js_State *J, void *uctx)
 {
 	J->uctx = uctx;
 }
 
-void *js_getcontext(js_State *J)
+void*
+js_getcontext(js_State *J)
 {
 	return J->uctx;
 }
 
-js_State *js_newstate(js_Alloc alloc, void *actx, int flags)
+js_State*
+js_newstate(js_Alloc alloc, void *actx, int flags)
 {
 	js_State *J;
 

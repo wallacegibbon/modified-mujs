@@ -36,16 +36,16 @@ enum {
 	Runemax		= 0x10FFFF,	/* maximum rune value */
 };
 
-int chartorune(Rune *rune, const char *str);
-int runetochar(char *str, const Rune *rune);
-int runelen(int c);
+int	chartorune(Rune *rune, const char *str);
+int	runetochar(char *str, const Rune *rune);
+int	runelen(int c);
 
-int isalpharune(Rune c);
-int islowerrune(Rune c);
-int isupperrune(Rune c);
-Rune tolowerrune(Rune c);
-Rune toupperrune(Rune c);
-const Rune* tolowerrune_full(Rune c);
-const Rune* toupperrune_full(Rune c);
+int	isalpharune(Rune c);
+int	islowerrune(Rune c);
+int	isupperrune(Rune c);
+Rune	tolowerrune(Rune c);
+Rune	toupperrune(Rune c);
+const Rune*	tolowerrune_full(Rune c);
+const Rune*	toupperrune_full(Rune c);
 
 #endif

@@ -9,7 +9,8 @@ typedef unsigned __int64 uint64_t;
 
 #include <time.h>
 
-static double jsM_round(double x)
+static double
+jsM_round(double x)
 {
 	if (isnan(x)) return x;
 	if (isinf(x)) return x;
@@ -19,59 +20,70 @@ static double jsM_round(double x)
 	return floor(x + 0.5);
 }
 
-static void Math_abs(js_State *J)
+static void
+Math_abs(js_State *J)
 {
 	js_pushnumber(J, fabs(js_tonumber(J, 1)));
 }
 
-static void Math_acos(js_State *J)
+static void
+Math_acos(js_State *J)
 {
 	js_pushnumber(J, acos(js_tonumber(J, 1)));
 }
 
-static void Math_asin(js_State *J)
+static void
+Math_asin(js_State *J)
 {
 	js_pushnumber(J, asin(js_tonumber(J, 1)));
 }
 
-static void Math_atan(js_State *J)
+static void
+Math_atan(js_State *J)
 {
 	js_pushnumber(J, atan(js_tonumber(J, 1)));
 }
 
-static void Math_atan2(js_State *J)
+static void
+Math_atan2(js_State *J)
 {
 	double y = js_tonumber(J, 1);
 	double x = js_tonumber(J, 2);
 	js_pushnumber(J, atan2(y, x));
 }
 
-static void Math_ceil(js_State *J)
+static void
+Math_ceil(js_State *J)
 {
 	js_pushnumber(J, ceil(js_tonumber(J, 1)));
 }
 
-static void Math_cos(js_State *J)
+static void
+Math_cos(js_State *J)
 {
 	js_pushnumber(J, cos(js_tonumber(J, 1)));
 }
 
-static void Math_exp(js_State *J)
+static void
+Math_exp(js_State *J)
 {
 	js_pushnumber(J, exp(js_tonumber(J, 1)));
 }
 
-static void Math_floor(js_State *J)
+static void
+Math_floor(js_State *J)
 {
 	js_pushnumber(J, floor(js_tonumber(J, 1)));
 }
 
-static void Math_log(js_State *J)
+static void
+Math_log(js_State *J)
 {
 	js_pushnumber(J, log(js_tonumber(J, 1)));
 }
 
-static void Math_pow(js_State *J)
+static void
+Math_pow(js_State *J)
 {
 	double x = js_tonumber(J, 1);
 	double y = js_tonumber(J, 2);
@@ -81,7 +93,8 @@ static void Math_pow(js_State *J)
 		js_pushnumber(J, pow(x,y));
 }
 
-static void Math_random(js_State *J)
+static void
+Math_random(js_State *J)
 {
 	/* Lehmer generator with a=48271 and m=2^31-1 */
 	/* Park & Miller (1988). Random Number Generators: Good ones are hard to find. */
@@ -89,7 +102,8 @@ static void Math_random(js_State *J)
 	js_pushnumber(J, (double) J->seed / 0x7fffffff);
 }
 
-static void Math_init_random(js_State *J)
+static void
+Math_init_random(js_State *J)
 {
 	/* Pick initial seed by scrambling current time with Xorshift. */
 	/* Marsaglia (2003). Xorshift RNGs. */
@@ -100,28 +114,33 @@ static void Math_init_random(js_State *J)
 	J->seed %= 0x7fffffff;
 }
 
-static void Math_round(js_State *J)
+static void
+Math_round(js_State *J)
 {
 	double x = js_tonumber(J, 1);
 	js_pushnumber(J, jsM_round(x));
 }
 
-static void Math_sin(js_State *J)
+static void
+Math_sin(js_State *J)
 {
 	js_pushnumber(J, sin(js_tonumber(J, 1)));
 }
 
-static void Math_sqrt(js_State *J)
+static void
+Math_sqrt(js_State *J)
 {
 	js_pushnumber(J, sqrt(js_tonumber(J, 1)));
 }
 
-static void Math_tan(js_State *J)
+static void
+Math_tan(js_State *J)
 {
 	js_pushnumber(J, tan(js_tonumber(J, 1)));
 }
 
-static void Math_max(js_State *J)
+static void
+Math_max(js_State *J)
 {
 	int i, n = js_gettop(J);
 	double x = -INFINITY;
@@ -139,7 +158,8 @@ static void Math_max(js_State *J)
 	js_pushnumber(J, x);
 }
 
-static void Math_min(js_State *J)
+static void
+Math_min(js_State *J)
 {
 	int i, n = js_gettop(J);
 	double x = INFINITY;
@@ -157,7 +177,8 @@ static void Math_min(js_State *J)
 	js_pushnumber(J, x);
 }
 
-void jsB_initmath(js_State *J)
+void
+jsB_initmath(js_State *J)
 {
 	Math_init_random(J);
 	js_pushobject(J, jsV_newobject(J, JS_CMATH, J->Object_prototype));

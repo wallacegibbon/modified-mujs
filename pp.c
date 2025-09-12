@@ -24,42 +24,49 @@ NULL
 static int format = 0;
 static int minify = 0;
 
-static void pc(int c)
+static void
+pc(int c)
 {
 	putchar(c);
 }
 
-static void ps(const char *s)
+static void
+ps(const char *s)
 {
 	fputs(s, stdout);
 }
 
-static void in(int d)
+static void
+in(int d)
 {
 	if (minify < 1)
 		while (d-- > 0)
 			putchar('\t');
 }
 
-static void nl(void)
+static void
+nl(void)
 {
 	if (minify < 2)
 		putchar('\n');
 }
 
-static void sp(void)
+static void
+sp(void)
 {
 	if (minify < 1)
 		putchar(' ');
 }
 
-static void comma(void)
+static void
+comma(void)
 {
 	putchar(',');
 	sp();
 }
 
-static void pstr(const char *s)
+static void
+pstr(const char *s)
 {
 	static const char *HEX = "0123456789ABCDEF";
 	Rune c;
@@ -201,7 +208,8 @@ static void jsC_dumpfunction(js_State *J, js_Function *F)
 
 /* Pretty-printed Javascript syntax */
 
-static int prec(enum js_AstType type)
+static int
+prec(enum js_AstType type)
 {
 	switch (type) {
 	case AST_IDENTIFIER:
@@ -301,13 +309,14 @@ static int prec(enum js_AstType type)
 	}
 }
 
-static void pstmlist(int d, js_Ast *list);
-static void pexpi(int d, int i, js_Ast *exp);
-static void pstm(int d, js_Ast *stm);
-static void slist(int d, js_Ast *list);
-static void sblock(int d, js_Ast *list);
+static void	pstmlist(int d, js_Ast *list);
+static void	pexpi(int d, int i, js_Ast *exp);
+static void	pstm(int d, js_Ast *stm);
+static void	slist(int d, js_Ast *list);
+static void	sblock(int d, js_Ast *list);
 
-static void pargs(int d, js_Ast *list)
+static void
+pargs(int d, js_Ast *list)
 {
 	while (list) {
 		assert(list->type == AST_LIST);
@@ -318,7 +327,8 @@ static void pargs(int d, js_Ast *list)
 	}
 }
 
-static void parray(int d, js_Ast *list)
+static void
+parray(int d, js_Ast *list)
 {
 	pc('[');
 	while (list) {
@@ -331,7 +341,8 @@ static void parray(int d, js_Ast *list)
 	pc(']');
 }
 
-static void pobject(int d, js_Ast *list)
+static void
+pobject(int d, js_Ast *list)
 {
 	pc('{');
 	if (list) {
@@ -378,7 +389,8 @@ static void pobject(int d, js_Ast *list)
 	pc('}');
 }
 
-static void pbin(int d, int p, js_Ast *exp, const char *op)
+static void
+pbin(int d, int p, js_Ast *exp, const char *op)
 {
 	pexpi(d, p, exp->a);
 	sp();
@@ -387,14 +399,16 @@ static void pbin(int d, int p, js_Ast *exp, const char *op)
 	pexpi(d, p, exp->b);
 }
 
-static void puna(int d, int p, js_Ast *exp, const char *pre, const char *suf)
+static void
+puna(int d, int p, js_Ast *exp, const char *pre, const char *suf)
 {
 	ps(pre);
 	pexpi(d, p, exp->a);
 	ps(suf);
 }
 
-static void pexpi(int d, int p, js_Ast *exp)
+static void
+pexpi(int d, int p, js_Ast *exp)
 {
 	int tp, paren;
 
@@ -539,12 +553,14 @@ static void pexpi(int d, int p, js_Ast *exp)
 	if (paren) pc(')');
 }
 
-static void pexp(int d, js_Ast *exp)
+static void
+pexp(int d, js_Ast *exp)
 {
 	pexpi(d, 0, exp);
 }
 
-static void pvar(int d, js_Ast *var)
+static void
+pvar(int d, js_Ast *var)
 {
 	assert(var->type == EXP_VAR);
 	pexp(d, var->a);
@@ -554,7 +570,8 @@ static void pvar(int d, js_Ast *var)
 	}
 }
 
-static void pvarlist(int d, js_Ast *list)
+static void
+pvarlist(int d, js_Ast *list)
 {
 	while (list) {
 		assert(list->type == AST_LIST);
@@ -565,7 +582,8 @@ static void pvarlist(int d, js_Ast *list)
 	}
 }
 
-static void pblock(int d, js_Ast *block)
+static void
+pblock(int d, js_Ast *block)
 {
 	assert(block->type == STM_BLOCK);
 	pc('{'); nl();
@@ -573,7 +591,8 @@ static void pblock(int d, js_Ast *block)
 	in(d); pc('}');
 }
 
-static void pstmh(int d, js_Ast *stm)
+static void
+pstmh(int d, js_Ast *stm)
 {
 	if (stm->type == STM_BLOCK) {
 		sp();
@@ -584,7 +603,8 @@ static void pstmh(int d, js_Ast *stm)
 	}
 }
 
-static void pcaselist(int d, js_Ast *list)
+static void
+pcaselist(int d, js_Ast *list)
 {
 	while (list) {
 		js_Ast *stm = list->a;
@@ -600,7 +620,8 @@ static void pcaselist(int d, js_Ast *list)
 	}
 }
 
-static void pstm(int d, js_Ast *stm)
+static void
+pstm(int d, js_Ast *stm)
 {
 	if (stm->type == STM_BLOCK) {
 		pblock(d, stm);
@@ -749,7 +770,8 @@ static void pstm(int d, js_Ast *stm)
 	}
 }
 
-static void pstmlist(int d, js_Ast *list)
+static void
+pstmlist(int d, js_Ast *list)
 {
 	while (list) {
 		assert(list->type == AST_LIST);
@@ -759,7 +781,8 @@ static void pstmlist(int d, js_Ast *list)
 	}
 }
 
-static void jsP_dumpsyntax(js_State *J, js_Ast *prog)
+static void
+jsP_dumpsyntax(js_State *J, js_Ast *prog)
 {
 	if (prog) {
 		if (prog->type == AST_LIST)
@@ -775,7 +798,8 @@ static void jsP_dumpsyntax(js_State *J, js_Ast *prog)
 
 /* S-expression list representation */
 
-static void snode(int d, js_Ast *node)
+static void
+snode(int d, js_Ast *node)
 {
 	void (*afun)(int,js_Ast*) = snode;
 	void (*bfun)(int,js_Ast*) = snode;
@@ -815,7 +839,8 @@ static void snode(int d, js_Ast *node)
 	pc(')');
 }
 
-static void slist(int d, js_Ast *list)
+static void
+slist(int d, js_Ast *list)
 {
 	pc('[');
 	while (list) {
@@ -828,7 +853,8 @@ static void slist(int d, js_Ast *list)
 	pc(']');
 }
 
-static void sblock(int d, js_Ast *list)
+static void
+sblock(int d, js_Ast *list)
 {
 	ps("[\n");
 	in(d+1);
@@ -844,7 +870,8 @@ static void sblock(int d, js_Ast *list)
 	nl(); in(d); pc(']');
 }
 
-static void jsP_dumplist(js_State *J, js_Ast *prog)
+static void
+jsP_dumplist(js_State *J, js_Ast *prog)
 {
 	if (prog) {
 		if (prog->type == AST_LIST)
@@ -855,7 +882,8 @@ static void jsP_dumplist(js_State *J, js_Ast *prog)
 	}
 }
 
-static void js_ppstring(js_State *J, const char *filename, const char *source)
+static void
+js_ppstring(js_State *J, const char *filename, const char *source)
 {
 	js_Ast *P;
 	js_Function *F;
@@ -884,7 +912,8 @@ static void js_ppstring(js_State *J, const char *filename, const char *source)
 	js_endtry(J);
 }
 
-static void js_ppfile(js_State *J, const char *filename)
+static void
+js_ppfile(js_State *J, const char *filename)
 {
 	FILE * volatile f = NULL;
 	char * volatile s = NULL;
@@ -933,7 +962,8 @@ static void js_ppfile(js_State *J, const char *filename)
 	fclose(f);
 }
 
-static void js_tryppfile(js_State *J, const char *file)
+static void
+js_tryppfile(js_State *J, const char *file)
 {
 	if (js_try(J)) {
 		js_report(J, js_trystring(J, -1, "Error"));
@@ -944,7 +974,8 @@ static void js_tryppfile(js_State *J, const char *file)
 	js_endtry(J);
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	js_State *J;
 	int i;

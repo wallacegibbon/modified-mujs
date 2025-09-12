@@ -26,7 +26,8 @@ JS_NORETURN static void jsP_error(js_State *J, const char *fmt, ...) JS_PRINTFLI
 #define SAVEREC() int SAVE=J->astdepth
 #define POPREC() J->astdepth=SAVE
 
-static void jsP_error(js_State *J, const char *fmt, ...)
+static void
+jsP_error(js_State *J, const char *fmt, ...)
 {
 	va_list ap;
 	char buf[512];
@@ -43,7 +44,8 @@ static void jsP_error(js_State *J, const char *fmt, ...)
 	js_throw(J);
 }
 
-static void jsP_warning(js_State *J, const char *fmt, ...)
+static void
+jsP_warning(js_State *J, const char *fmt, ...)
 {
 	va_list ap;
 	char buf[512];
@@ -57,7 +59,8 @@ static void jsP_warning(js_State *J, const char *fmt, ...)
 	js_report(J, buf);
 }
 
-static js_Ast *jsP_newnode(js_State *J, enum js_AstType type, int line, js_Ast *a, js_Ast *b, js_Ast *c, js_Ast *d)
+static js_Ast*
+jsP_newnode(js_State *J, enum js_AstType type, int line, js_Ast *a, js_Ast *b, js_Ast *c, js_Ast *d)
 {
 	js_Ast *node = js_malloc(J, sizeof *node);
 
@@ -84,7 +87,8 @@ static js_Ast *jsP_newnode(js_State *J, enum js_AstType type, int line, js_Ast *
 	return node;
 }
 
-static js_Ast *jsP_list(js_Ast *head)
+static js_Ast*
+jsP_list(js_Ast *head)
 {
 	/* set parent pointers in list nodes */
 	js_Ast *prev = head, *node = head->b;
@@ -96,21 +100,24 @@ static js_Ast *jsP_list(js_Ast *head)
 	return head;
 }
 
-static js_Ast *jsP_newstrnode(js_State *J, enum js_AstType type, const char *s)
+static js_Ast*
+jsP_newstrnode(js_State *J, enum js_AstType type, const char *s)
 {
 	js_Ast *node = jsP_newnode(J, type, J->lexline, 0, 0, 0, 0);
 	node->string = s;
 	return node;
 }
 
-static js_Ast *jsP_newnumnode(js_State *J, enum js_AstType type, double n)
+static js_Ast*
+jsP_newnumnode(js_State *J, enum js_AstType type, double n)
 {
 	js_Ast *node = jsP_newnode(J, type, J->lexline, 0, 0, 0, 0);
 	node->number = n;
 	return node;
 }
 
-static void jsP_freejumps(js_State *J, js_JumpList *node)
+static void
+jsP_freejumps(js_State *J, js_JumpList *node)
 {
 	while (node) {
 		js_JumpList *next = node->next;
@@ -119,7 +126,8 @@ static void jsP_freejumps(js_State *J, js_JumpList *node)
 	}
 }
 
-void jsP_freeparse(js_State *J)
+void
+jsP_freeparse(js_State *J)
 {
 	js_Ast *node = J->gcast;
 	while (node) {
@@ -133,7 +141,8 @@ void jsP_freeparse(js_State *J)
 
 /* Lookahead */
 
-static void jsP_next(js_State *J)
+static void
+jsP_next(js_State *J)
 {
 	J->lookahead = jsY_lex(J);
 }
@@ -142,7 +151,8 @@ static void jsP_next(js_State *J)
 
 #define jsP_expect(J,x) if (!jsP_accept(J, x)) jsP_error(J, "unexpected token: %s (expected %s)", jsY_tokenstring(J->lookahead), jsY_tokenstring(x))
 
-static void semicolon(js_State *J)
+static void
+semicolon(js_State *J)
 {
 	if (J->lookahead == ';') {
 		jsP_next(J);
@@ -155,7 +165,8 @@ static void semicolon(js_State *J)
 
 /* Literals */
 
-static js_Ast *identifier(js_State *J)
+static js_Ast*
+identifier(js_State *J)
 {
 	js_Ast *a;
 	if (J->lookahead == TK_IDENTIFIER) {
@@ -166,14 +177,16 @@ static js_Ast *identifier(js_State *J)
 	jsP_error(J, "unexpected token: %s (expected identifier)", jsY_tokenstring(J->lookahead));
 }
 
-static js_Ast *identifieropt(js_State *J)
+static js_Ast*
+identifieropt(js_State *J)
 {
 	if (J->lookahead == TK_IDENTIFIER)
 		return identifier(J);
 	return NULL;
 }
 
-static js_Ast *identifiername(js_State *J)
+static js_Ast*
+identifiername(js_State *J)
 {
 	if (J->lookahead == TK_IDENTIFIER || J->lookahead >= TK_BREAK) {
 		js_Ast *a = jsP_newstrnode(J, AST_IDENTIFIER, J->text);
@@ -183,7 +196,8 @@ static js_Ast *identifiername(js_State *J)
 	jsP_error(J, "unexpected token: %s (expected identifier or keyword)", jsY_tokenstring(J->lookahead));
 }
 
-static js_Ast *arrayelement(js_State *J)
+static js_Ast*
+arrayelement(js_State *J)
 {
 	int line = J->lexline;
 	if (J->lookahead == ',')
@@ -191,7 +205,8 @@ static js_Ast *arrayelement(js_State *J)
 	return assignment(J, 0);
 }
 
-static js_Ast *arrayliteral(js_State *J)
+static js_Ast*
+arrayliteral(js_State *J)
 {
 	js_Ast *head, *tail;
 	if (J->lookahead == ']')
@@ -204,7 +219,8 @@ static js_Ast *arrayliteral(js_State *J)
 	return jsP_list(head);
 }
 
-static js_Ast *propname(js_State *J)
+static js_Ast*
+propname(js_State *J)
 {
 	js_Ast *name;
 	if (J->lookahead == TK_NUMBER) {
@@ -219,7 +235,8 @@ static js_Ast *propname(js_State *J)
 	return name;
 }
 
-static js_Ast *propassign(js_State *J)
+static js_Ast*
+propassign(js_State *J)
 {
 	js_Ast *name, *value, *arg, *body;
 	int line = J->lexline;
@@ -249,7 +266,8 @@ static js_Ast *propassign(js_State *J)
 	return EXP2(PROP_VAL, name, value);
 }
 
-static js_Ast *objectliteral(js_State *J)
+static js_Ast*
+objectliteral(js_State *J)
 {
 	js_Ast *head, *tail;
 	if (J->lookahead == '}')
@@ -265,7 +283,8 @@ static js_Ast *objectliteral(js_State *J)
 
 /* Functions */
 
-static js_Ast *parameters(js_State *J)
+static js_Ast*
+parameters(js_State *J)
 {
 	js_Ast *head, *tail;
 	if (J->lookahead == ')')
@@ -277,7 +296,8 @@ static js_Ast *parameters(js_State *J)
 	return jsP_list(head);
 }
 
-static js_Ast *fundec(js_State *J, int line)
+static js_Ast*
+fundec(js_State *J, int line)
 {
 	js_Ast *a, *b, *c;
 	a = identifier(J);
@@ -288,7 +308,8 @@ static js_Ast *fundec(js_State *J, int line)
 	return jsP_newnode(J, AST_FUNDEC, line, a, b, c, 0);
 }
 
-static js_Ast *funstm(js_State *J, int line)
+static js_Ast*
+funstm(js_State *J, int line)
 {
 	js_Ast *a, *b, *c;
 	a = identifier(J);
@@ -300,7 +321,8 @@ static js_Ast *funstm(js_State *J, int line)
 	return STM1(VAR, LIST(EXP2(VAR, a, EXP3(FUN, a, b, c))));
 }
 
-static js_Ast *funexp(js_State *J, int line)
+static js_Ast*
+funexp(js_State *J, int line)
 {
 	js_Ast *a, *b, *c;
 	a = identifieropt(J);
@@ -313,7 +335,8 @@ static js_Ast *funexp(js_State *J, int line)
 
 /* Expressions */
 
-static js_Ast *primary(js_State *J)
+static js_Ast*
+primary(js_State *J)
 {
 	js_Ast *a;
 	int line = J->lexline;
@@ -363,7 +386,8 @@ static js_Ast *primary(js_State *J)
 	jsP_error(J, "unexpected token in expression: %s", jsY_tokenstring(J->lookahead));
 }
 
-static js_Ast *arguments(js_State *J)
+static js_Ast*
+arguments(js_State *J)
 {
 	js_Ast *head, *tail;
 	if (J->lookahead == ')')
@@ -375,7 +399,8 @@ static js_Ast *arguments(js_State *J)
 	return jsP_list(head);
 }
 
-static js_Ast *newexp(js_State *J)
+static js_Ast*
+newexp(js_State *J)
 {
 	js_Ast *a, *b;
 	int line = J->lexline;
@@ -396,7 +421,8 @@ static js_Ast *newexp(js_State *J)
 	return primary(J);
 }
 
-static js_Ast *memberexp(js_State *J)
+static js_Ast*
+memberexp(js_State *J)
 {
 	js_Ast *a = newexp(J);
 	int line;
@@ -410,7 +436,8 @@ loop:
 	return a;
 }
 
-static js_Ast *callexp(js_State *J)
+static js_Ast*
+callexp(js_State *J)
 {
 	js_Ast *a = newexp(J);
 	int line;
@@ -425,7 +452,8 @@ loop:
 	return a;
 }
 
-static js_Ast *postfix(js_State *J)
+static js_Ast*
+postfix(js_State *J)
 {
 	js_Ast *a = callexp(J);
 	int line = J->lexline;
@@ -434,7 +462,8 @@ static js_Ast *postfix(js_State *J)
 	return a;
 }
 
-static js_Ast *unary(js_State *J)
+static js_Ast*
+unary(js_State *J)
 {
 	js_Ast *a;
 	int line = J->lexline;
@@ -453,7 +482,8 @@ static js_Ast *unary(js_State *J)
 	return a;
 }
 
-static js_Ast *multiplicative(js_State *J)
+static js_Ast*
+multiplicative(js_State *J)
 {
 	js_Ast *a = unary(J);
 	int line;
@@ -468,7 +498,8 @@ loop:
 	return a;
 }
 
-static js_Ast *additive(js_State *J)
+static js_Ast*
+additive(js_State *J)
 {
 	js_Ast *a = multiplicative(J);
 	int line;
@@ -482,7 +513,8 @@ loop:
 	return a;
 }
 
-static js_Ast *shift(js_State *J)
+static js_Ast*
+shift(js_State *J)
 {
 	js_Ast *a = additive(J);
 	int line;
@@ -497,7 +529,8 @@ loop:
 	return a;
 }
 
-static js_Ast *relational(js_State *J, int notin)
+static js_Ast*
+relational(js_State *J, int notin)
 {
 	js_Ast *a = shift(J);
 	int line;
@@ -515,7 +548,8 @@ loop:
 	return a;
 }
 
-static js_Ast *equality(js_State *J, int notin)
+static js_Ast*
+equality(js_State *J, int notin)
 {
 	js_Ast *a = relational(J, notin);
 	int line;
@@ -531,7 +565,8 @@ loop:
 	return a;
 }
 
-static js_Ast *bitand(js_State *J, int notin)
+static js_Ast*
+bitand(js_State *J, int notin)
 {
 	js_Ast *a = equality(J, notin);
 	SAVEREC();
@@ -545,7 +580,8 @@ static js_Ast *bitand(js_State *J, int notin)
 	return a;
 }
 
-static js_Ast *bitxor(js_State *J, int notin)
+static js_Ast*
+bitxor(js_State *J, int notin)
 {
 	js_Ast *a = bitand(J, notin);
 	SAVEREC();
@@ -559,7 +595,8 @@ static js_Ast *bitxor(js_State *J, int notin)
 	return a;
 }
 
-static js_Ast *bitor(js_State *J, int notin)
+static js_Ast*
+bitor(js_State *J, int notin)
 {
 	js_Ast *a = bitxor(J, notin);
 	SAVEREC();
@@ -573,7 +610,8 @@ static js_Ast *bitor(js_State *J, int notin)
 	return a;
 }
 
-static js_Ast *logand(js_State *J, int notin)
+static js_Ast*
+logand(js_State *J, int notin)
 {
 	js_Ast *a = bitor(J, notin);
 	int line = J->lexline;
@@ -585,7 +623,8 @@ static js_Ast *logand(js_State *J, int notin)
 	return a;
 }
 
-static js_Ast *logor(js_State *J, int notin)
+static js_Ast*
+logor(js_State *J, int notin)
 {
 	js_Ast *a = logand(J, notin);
 	int line = J->lexline;
@@ -597,7 +636,8 @@ static js_Ast *logor(js_State *J, int notin)
 	return a;
 }
 
-static js_Ast *conditional(js_State *J, int notin)
+static js_Ast*
+conditional(js_State *J, int notin)
 {
 	js_Ast *a = logor(J, notin);
 	int line = J->lexline;
@@ -613,7 +653,8 @@ static js_Ast *conditional(js_State *J, int notin)
 	return a;
 }
 
-static js_Ast *assignment(js_State *J, int notin)
+static js_Ast*
+assignment(js_State *J, int notin)
 {
 	js_Ast *a = conditional(J, notin);
 	int line = J->lexline;
@@ -634,7 +675,8 @@ static js_Ast *assignment(js_State *J, int notin)
 	return a;
 }
 
-static js_Ast *expression(js_State *J, int notin)
+static js_Ast*
+expression(js_State *J, int notin)
 {
 	js_Ast *a = assignment(J, notin);
 	SAVEREC();
@@ -650,7 +692,8 @@ static js_Ast *expression(js_State *J, int notin)
 
 /* Statements */
 
-static js_Ast *vardec(js_State *J, int notin)
+static js_Ast*
+vardec(js_State *J, int notin)
 {
 	js_Ast *a = identifier(J);
 	int line = J->lexline;
@@ -659,7 +702,8 @@ static js_Ast *vardec(js_State *J, int notin)
 	return EXP1(VAR, a);
 }
 
-static js_Ast *vardeclist(js_State *J, int notin)
+static js_Ast*
+vardeclist(js_State *J, int notin)
 {
 	js_Ast *head, *tail;
 	head = tail = LIST(vardec(J, notin));
@@ -668,7 +712,8 @@ static js_Ast *vardeclist(js_State *J, int notin)
 	return jsP_list(head);
 }
 
-static js_Ast *statementlist(js_State *J)
+static js_Ast*
+statementlist(js_State *J)
 {
 	js_Ast *head, *tail;
 	if (J->lookahead == '}' || J->lookahead == TK_CASE || J->lookahead == TK_DEFAULT)
@@ -679,7 +724,8 @@ static js_Ast *statementlist(js_State *J)
 	return jsP_list(head);
 }
 
-static js_Ast *caseclause(js_State *J)
+static js_Ast*
+caseclause(js_State *J)
 {
 	js_Ast *a, *b;
 	int line = J->lexline;
@@ -700,7 +746,8 @@ static js_Ast *caseclause(js_State *J)
 	jsP_error(J, "unexpected token in switch: %s (expected 'case' or 'default')", jsY_tokenstring(J->lookahead));
 }
 
-static js_Ast *caselist(js_State *J)
+static js_Ast*
+caselist(js_State *J)
 {
 	js_Ast *head, *tail;
 	if (J->lookahead == '}')
@@ -711,7 +758,8 @@ static js_Ast *caselist(js_State *J)
 	return jsP_list(head);
 }
 
-static js_Ast *block(js_State *J)
+static js_Ast*
+block(js_State *J)
 {
 	js_Ast *a;
 	int line = J->lexline;
@@ -721,7 +769,8 @@ static js_Ast *block(js_State *J)
 	return STM1(BLOCK, a);
 }
 
-static js_Ast *forexpression(js_State *J, int end)
+static js_Ast*
+forexpression(js_State *J, int end)
 {
 	js_Ast *a = NULL;
 	if (J->lookahead != end)
@@ -730,7 +779,8 @@ static js_Ast *forexpression(js_State *J, int end)
 	return a;
 }
 
-static js_Ast *forstatement(js_State *J, int line)
+static js_Ast*
+forstatement(js_State *J, int line)
 {
 	js_Ast *a, *b, *c, *d;
 	jsP_expect(J, '(');
@@ -770,7 +820,8 @@ static js_Ast *forstatement(js_State *J, int line)
 	jsP_error(J, "unexpected token in for-statement: %s", jsY_tokenstring(J->lookahead));
 }
 
-static js_Ast *statement(js_State *J)
+static js_Ast*
+statement(js_State *J)
 {
 	js_Ast *a, *b, *c, *d;
 	js_Ast *stm;
@@ -932,7 +983,8 @@ static js_Ast *scriptelement(js_State *J)
 	return statement(J);
 }
 
-static js_Ast *script(js_State *J, int terminator)
+static js_Ast*
+script(js_State *J, int terminator)
 {
 	js_Ast *head, *tail;
 	if (J->lookahead == terminator)
@@ -943,7 +995,8 @@ static js_Ast *script(js_State *J, int terminator)
 	return jsP_list(head);
 }
 
-static js_Ast *funbody(js_State *J)
+static js_Ast*
+funbody(js_State *J)
 {
 	js_Ast *a;
 	jsP_expect(J, '{');
@@ -954,7 +1007,8 @@ static js_Ast *funbody(js_State *J)
 
 /* Constant folding */
 
-static int toint32(double d)
+static int
+toint32(double d)
 {
 	double two32 = 4294967296.0;
 	double two31 = 2147483648.0;
@@ -970,12 +1024,14 @@ static int toint32(double d)
 		return d;
 }
 
-static unsigned int touint32(double d)
+static unsigned int
+touint32(double d)
 {
 	return (unsigned int)toint32(d);
 }
 
-static int jsP_setnumnode(js_Ast *node, double x)
+static int
+jsP_setnumnode(js_Ast *node, double x)
 {
 	node->type = EXP_NUMBER;
 	node->number = x;
@@ -983,7 +1039,8 @@ static int jsP_setnumnode(js_Ast *node, double x)
 	return 1;
 }
 
-static int jsP_foldconst(js_Ast *node)
+static int
+jsP_foldconst(js_Ast *node)
 {
 	double x, y;
 	int a, b;
@@ -1037,7 +1094,8 @@ static int jsP_foldconst(js_Ast *node)
 
 /* Main entry point */
 
-js_Ast *jsP_parse(js_State *J, const char *filename, const char *source)
+js_Ast*
+jsP_parse(js_State *J, const char *filename, const char *source)
 {
 	js_Ast *p;
 
@@ -1051,7 +1109,8 @@ js_Ast *jsP_parse(js_State *J, const char *filename, const char *source)
 	return p;
 }
 
-js_Ast *jsP_parsefunction(js_State *J, const char *filename, const char *params, const char *body)
+js_Ast*
+jsP_parsefunction(js_State *J, const char *filename, const char *params, const char *body)
 {
 	js_Ast *p = NULL;
 	int line = 0;

@@ -11,7 +11,8 @@ static void cexp(JF, js_Ast *exp);
 static void cstmlist(JF, js_Ast *list);
 static void cstm(JF, js_Ast *stm);
 
-void jsC_error(js_State *J, js_Ast *node, const char *fmt, ...)
+void
+jsC_error(js_State *J, js_Ast *node, const char *fmt, ...)
 {
 	va_list ap;
 	char buf[512];
@@ -37,7 +38,8 @@ static const char *strictfuturewords[] = {
 	"public", "static", "yield",
 };
 
-static void checkfutureword(JF, js_Ast *exp)
+static void
+checkfutureword(JF, js_Ast *exp)
 {
 	if (jsY_findword(exp->string, futurewords, nelem(futurewords)) >= 0)
 		jsC_error(J, exp, "'%s' is a future reserved word", exp->string);
@@ -47,7 +49,8 @@ static void checkfutureword(JF, js_Ast *exp)
 	}
 }
 
-static js_Function *newfun(js_State *J, int line, js_Ast *name, js_Ast *params, js_Ast *body, int script, int default_strict, int is_fun_exp)
+static js_Function*
+newfun(js_State *J, int line, js_Ast *name, js_Ast *params, js_Ast *body, int script, int default_strict, int is_fun_exp)
 {
 	js_Function *F = js_malloc(J, sizeof *F);
 	memset(F, 0, sizeof *F);
@@ -69,7 +72,8 @@ static js_Function *newfun(js_State *J, int line, js_Ast *name, js_Ast *params, 
 
 /* Emit opcodes, constants and jumps */
 
-static void emitraw(JF, int value)
+static void
+emitraw(JF, int value)
 {
 	if (value != (js_Instruction)value)
 		js_syntaxerror(J, "integer overflow in instruction coding");
@@ -80,23 +84,27 @@ static void emitraw(JF, int value)
 	F->code[F->codelen++] = value;
 }
 
-static void emit(JF, int value)
+static void
+emit(JF, int value)
 {
 	emitraw(J, F, F->lastline);
 	emitraw(J, F, value);
 }
 
-static void emitarg(JF, int value)
+static void
+emitarg(JF, int value)
 {
 	emitraw(J, F, value);
 }
 
-static void emitline(JF, js_Ast *node)
+static void
+emitline(JF, js_Ast *node)
 {
 	F->lastline = node->line;
 }
 
-static int addfunction(JF, js_Function *value)
+static int
+addfunction(JF, js_Function *value)
 {
 	if (F->funlen >= F->funcap) {
 		F->funcap = F->funcap ? F->funcap * 2 : 16;
@@ -106,7 +114,8 @@ static int addfunction(JF, js_Function *value)
 	return F->funlen++;
 }
 
-static int addlocal(JF, js_Ast *ident, int reuse)
+static int
+addlocal(JF, js_Ast *ident, int reuse)
 {
 	const char *name = ident->string;
 	if (F->strict) {
@@ -137,7 +146,8 @@ static int addlocal(JF, js_Ast *ident, int reuse)
 	return ++F->varlen;
 }
 
-static int findlocal(JF, const char *name)
+static int
+findlocal(JF, const char *name)
 {
 	int i;
 	for (i = F->varlen; i > 0; --i)
@@ -146,14 +156,16 @@ static int findlocal(JF, const char *name)
 	return -1;
 }
 
-static void emitfunction(JF, js_Function *fun)
+static void
+emitfunction(JF, js_Function *fun)
 {
 	F->lightweight = 0;
 	emit(J, F, OP_CLOSURE);
 	emitarg(J, F, addfunction(J, F, fun));
 }
 
-static void emitnumber(JF, double num)
+static void
+emitnumber(JF, double num)
 {
 	if (num == 0) {
 		emit(J, F, OP_INTEGER);
@@ -175,7 +187,8 @@ static void emitnumber(JF, double num)
 	}
 }
 
-static void emitstring(JF, int opcode, const char *str)
+static void
+emitstring(JF, int opcode, const char *str)
 {
 #define N (sizeof(str) / sizeof(js_Instruction))
 	js_Instruction x[N];
@@ -187,7 +200,8 @@ static void emitstring(JF, int opcode, const char *str)
 #undef N
 }
 
-static void emitlocal(JF, int oploc, int opvar, js_Ast *ident)
+static void
+emitlocal(JF, int oploc, int opvar, js_Ast *ident)
 {
 	int is_arguments = !strcmp(ident->string, "arguments");
 	int is_eval = !strcmp(ident->string, "eval");
@@ -217,12 +231,14 @@ static void emitlocal(JF, int oploc, int opvar, js_Ast *ident)
 	}
 }
 
-static int here(JF)
+static int
+here(JF)
 {
 	return F->codelen;
 }
 
-static int emitjump(JF, int opcode)
+static int
+emitjump(JF, int opcode)
 {
 	int inst;
 	emit(J, F, opcode);
@@ -231,7 +247,8 @@ static int emitjump(JF, int opcode)
 	return inst;
 }
 
-static void emitjumpto(JF, int opcode, int dest)
+static void
+emitjumpto(JF, int opcode, int dest)
 {
 	emit(J, F, opcode);
 	if (dest != (js_Instruction)dest)
@@ -239,21 +256,24 @@ static void emitjumpto(JF, int opcode, int dest)
 	emitarg(J, F, dest);
 }
 
-static void labelto(JF, int inst, int addr)
+static void
+labelto(JF, int inst, int addr)
 {
 	if (addr != (js_Instruction)addr)
 		js_syntaxerror(J, "jump address integer overflow");
 	F->code[inst] = addr;
 }
 
-static void label(JF, int inst)
+static void
+label(JF, int inst)
 {
 	labelto(J, F, inst, F->codelen);
 }
 
 /* Expressions */
 
-static void ctypeof(JF, js_Ast *exp)
+static void
+ctypeof(JF, js_Ast *exp)
 {
 	if (exp->a->type == EXP_IDENTIFIER) {
 		emitline(J, F, exp->a);
@@ -265,14 +285,16 @@ static void ctypeof(JF, js_Ast *exp)
 	emit(J, F, OP_TYPEOF);
 }
 
-static void cunary(JF, js_Ast *exp, int opcode)
+static void
+cunary(JF, js_Ast *exp, int opcode)
 {
 	cexp(J, F, exp->a);
 	emitline(J, F, exp);
 	emit(J, F, opcode);
 }
 
-static void cbinary(JF, js_Ast *exp, int opcode)
+static void
+cbinary(JF, js_Ast *exp, int opcode)
 {
 	cexp(J, F, exp->a);
 	cexp(J, F, exp->b);
@@ -280,7 +302,8 @@ static void cbinary(JF, js_Ast *exp, int opcode)
 	emit(J, F, opcode);
 }
 
-static void carray(JF, js_Ast *list)
+static void
+carray(JF, js_Ast *list)
 {
 	while (list) {
 		emitline(J, F, list->a);
@@ -294,7 +317,8 @@ static void carray(JF, js_Ast *list)
 	}
 }
 
-static void checkdup(JF, js_Ast *list, js_Ast *end)
+static void
+checkdup(JF, js_Ast *list, js_Ast *end)
 {
 	char nbuf[32], sbuf[32];
 	const char *needle, *straw;
@@ -318,7 +342,8 @@ static void checkdup(JF, js_Ast *list, js_Ast *end)
 	}
 }
 
-static void cobject(JF, js_Ast *list)
+static void
+cobject(JF, js_Ast *list)
 {
 	js_Ast *head = list;
 
@@ -362,7 +387,8 @@ static void cobject(JF, js_Ast *list)
 	}
 }
 
-static int cargs(JF, js_Ast *list)
+static int
+cargs(JF, js_Ast *list)
 {
 	int n = 0;
 	while (list) {
@@ -373,7 +399,8 @@ static int cargs(JF, js_Ast *list)
 	return n;
 }
 
-static void cassign(JF, js_Ast *exp)
+static void
+cassign(JF, js_Ast *exp)
 {
 	js_Ast *lhs = exp->a;
 	js_Ast *rhs = exp->b;
@@ -401,7 +428,8 @@ static void cassign(JF, js_Ast *exp)
 	}
 }
 
-static void cassignforin(JF, js_Ast *stm)
+static void
+cassignforin(JF, js_Ast *stm)
 {
 	js_Ast *lhs = stm->a;
 
@@ -440,7 +468,8 @@ static void cassignforin(JF, js_Ast *stm)
 	}
 }
 
-static void cassignop1(JF, js_Ast *lhs)
+static void
+cassignop1(JF, js_Ast *lhs)
 {
 	switch (lhs->type) {
 	case EXP_IDENTIFIER:
@@ -465,7 +494,8 @@ static void cassignop1(JF, js_Ast *lhs)
 	}
 }
 
-static void cassignop2(JF, js_Ast *lhs, int postfix)
+static void
+cassignop2(JF, js_Ast *lhs, int postfix)
 {
 	switch (lhs->type) {
 	case EXP_IDENTIFIER:
@@ -488,7 +518,8 @@ static void cassignop2(JF, js_Ast *lhs, int postfix)
 	}
 }
 
-static void cassignop(JF, js_Ast *exp, int opcode)
+static void
+cassignop(JF, js_Ast *exp, int opcode)
 {
 	js_Ast *lhs = exp->a;
 	js_Ast *rhs = exp->b;
@@ -499,7 +530,8 @@ static void cassignop(JF, js_Ast *exp, int opcode)
 	cassignop2(J, F, lhs, 0);
 }
 
-static void cdelete(JF, js_Ast *exp)
+static void
+cdelete(JF, js_Ast *exp)
 {
 	js_Ast *arg = exp->a;
 	switch (arg->type) {
@@ -525,7 +557,8 @@ static void cdelete(JF, js_Ast *exp)
 	}
 }
 
-static void ceval(JF, js_Ast *fun, js_Ast *args)
+static void
+ceval(JF, js_Ast *fun, js_Ast *args)
 {
 	int n = cargs(J, F, args);
 	F->lightweight = 0;
@@ -537,7 +570,8 @@ static void ceval(JF, js_Ast *fun, js_Ast *args)
 	emit(J, F, OP_EVAL);
 }
 
-static void ccall(JF, js_Ast *fun, js_Ast *args)
+static void
+ccall(JF, js_Ast *fun, js_Ast *args)
 {
 	int n;
 	switch (fun->type) {
@@ -570,7 +604,8 @@ static void ccall(JF, js_Ast *fun, js_Ast *args)
 	emitarg(J, F, n);
 }
 
-static void cexp(JF, js_Ast *exp)
+static void
+cexp(JF, js_Ast *exp)
 {
 	int then, end;
 	int n;
@@ -783,7 +818,8 @@ static void cexp(JF, js_Ast *exp)
 
 /* Patch break and continue statements */
 
-static void addjump(JF, enum js_AstType type, js_Ast *target, int inst)
+static void
+addjump(JF, enum js_AstType type, js_Ast *target, int inst)
 {
 	js_JumpList *jump = js_malloc(J, sizeof *jump);
 	jump->type = type;
@@ -792,7 +828,8 @@ static void addjump(JF, enum js_AstType type, js_Ast *target, int inst)
 	target->jumps = jump;
 }
 
-static void labeljumps(JF, js_Ast *stm, int baddr, int caddr)
+static void
+labeljumps(JF, js_Ast *stm, int baddr, int caddr)
 {
 	js_JumpList *jump = stm->jumps;
 	while (jump) {
@@ -807,19 +844,22 @@ static void labeljumps(JF, js_Ast *stm, int baddr, int caddr)
 	stm->jumps = NULL;
 }
 
-static int isloop(enum js_AstType T)
+static int
+isloop(enum js_AstType T)
 {
 	return T == STM_DO || T == STM_WHILE ||
 		T == STM_FOR || T == STM_FOR_VAR ||
 		T == STM_FOR_IN || T == STM_FOR_IN_VAR;
 }
 
-static int isfun(enum js_AstType T)
+static int
+isfun(enum js_AstType T)
 {
 	return T == AST_FUNDEC || T == EXP_FUN || T == EXP_PROP_GET || T == EXP_PROP_SET;
 }
 
-static int matchlabel(js_Ast *node, const char *label)
+static int
+matchlabel(js_Ast *node, const char *label)
 {
 	while (node && node->type == STM_LABEL) {
 		if (!strcmp(node->a->string, label))
@@ -829,7 +869,8 @@ static int matchlabel(js_Ast *node, const char *label)
 	return 0;
 }
 
-static js_Ast *breaktarget(JF, js_Ast *node, const char *label)
+static js_Ast*
+breaktarget(JF, js_Ast *node, const char *label)
 {
 	while (node) {
 		if (isfun(node->type))
@@ -846,7 +887,8 @@ static js_Ast *breaktarget(JF, js_Ast *node, const char *label)
 	return NULL;
 }
 
-static js_Ast *continuetarget(JF, js_Ast *node, const char *label)
+static js_Ast*
+continuetarget(JF, js_Ast *node, const char *label)
 {
 	while (node) {
 		if (isfun(node->type))
@@ -862,7 +904,8 @@ static js_Ast *continuetarget(JF, js_Ast *node, const char *label)
 	return NULL;
 }
 
-static js_Ast *returntarget(JF, js_Ast *node)
+static js_Ast*
+returntarget(JF, js_Ast *node)
 {
 	while (node) {
 		if (isfun(node->type))
@@ -874,7 +917,8 @@ static js_Ast *returntarget(JF, js_Ast *node)
 
 /* Emit code to rebalance stack and scopes during an abrupt exit */
 
-static void cexit(JF, enum js_AstType T, js_Ast *node, js_Ast *target)
+static void
+cexit(JF, enum js_AstType T, js_Ast *node, js_Ast *target)
 {
 	js_Ast *prev;
 	do {
@@ -934,7 +978,8 @@ static void cexit(JF, enum js_AstType T, js_Ast *node, js_Ast *target)
 
 /* Try/catch/finally */
 
-static void ctryfinally(JF, js_Ast *trystm, js_Ast *finallystm)
+static void
+ctryfinally(JF, js_Ast *trystm, js_Ast *finallystm)
 {
 	int L1;
 	L1 = emitjump(J, F, OP_TRY);
@@ -949,7 +994,8 @@ static void ctryfinally(JF, js_Ast *trystm, js_Ast *finallystm)
 	cstm(J, F, finallystm);
 }
 
-static void ctrycatch(JF, js_Ast *trystm, js_Ast *catchvar, js_Ast *catchstm)
+static void
+ctrycatch(JF, js_Ast *trystm, js_Ast *catchvar, js_Ast *catchstm)
 {
 	int L1, L2;
 	L1 = emitjump(J, F, OP_TRY);
@@ -974,7 +1020,8 @@ static void ctrycatch(JF, js_Ast *trystm, js_Ast *catchvar, js_Ast *catchstm)
 	label(J, F, L2);
 }
 
-static void ctrycatchfinally(JF, js_Ast *trystm, js_Ast *catchvar, js_Ast *catchstm, js_Ast *finallystm)
+static void
+ctrycatchfinally(JF, js_Ast *trystm, js_Ast *catchvar, js_Ast *catchstm, js_Ast *finallystm)
 {
 	int L1, L2, L3;
 	L1 = emitjump(J, F, OP_TRY);
@@ -1010,7 +1057,8 @@ static void ctrycatchfinally(JF, js_Ast *trystm, js_Ast *catchvar, js_Ast *catch
 
 /* Switch */
 
-static void cswitch(JF, js_Ast *ref, js_Ast *head)
+static void
+cswitch(JF, js_Ast *ref, js_Ast *head)
 {
 	js_Ast *node, *clause, *def = NULL;
 	int end;
@@ -1055,7 +1103,8 @@ static void cswitch(JF, js_Ast *ref, js_Ast *head)
 
 /* Statements */
 
-static void cvarinit(JF, js_Ast *list)
+static void
+cvarinit(JF, js_Ast *list)
 {
 	while (list) {
 		js_Ast *var = list->a;
@@ -1069,7 +1118,8 @@ static void cvarinit(JF, js_Ast *list)
 	}
 }
 
-static void cstm(JF, js_Ast *stm)
+static void
+cstm(JF, js_Ast *stm)
 {
 	js_Ast *target;
 	int loop, cont, then, end;
@@ -1304,7 +1354,8 @@ static void cstm(JF, js_Ast *stm)
 	}
 }
 
-static void cstmlist(JF, js_Ast *list)
+static void
+cstmlist(JF, js_Ast *list)
 {
 	while (list) {
 		cstm(J, F, list->a);
@@ -1314,14 +1365,16 @@ static void cstmlist(JF, js_Ast *list)
 
 /* Declarations and programs */
 
-static int listlength(js_Ast *list)
+static int
+listlength(js_Ast *list)
 {
 	int n = 0;
 	while (list) ++n, list = list->b;
 	return n;
 }
 
-static void cparams(JF, js_Ast *list, js_Ast *fname)
+static void
+cparams(JF, js_Ast *list, js_Ast *fname)
 {
 	F->numparams = listlength(list);
 	while (list) {
@@ -1331,7 +1384,8 @@ static void cparams(JF, js_Ast *list, js_Ast *fname)
 	}
 }
 
-static void cvardecs(JF, js_Ast *node)
+static void
+cvardecs(JF, js_Ast *node)
 {
 	if (node->type == AST_LIST) {
 		while (node) {
@@ -1355,7 +1409,8 @@ static void cvardecs(JF, js_Ast *node)
 	if (node->d) cvardecs(J, F, node->d);
 }
 
-static void cfundecs(JF, js_Ast *list)
+static void
+cfundecs(JF, js_Ast *list)
 {
 	while (list) {
 		js_Ast *stm = list->a;
@@ -1371,7 +1426,8 @@ static void cfundecs(JF, js_Ast *list)
 	}
 }
 
-static void cfunbody(JF, js_Ast *name, js_Ast *params, js_Ast *body, int is_fun_exp)
+static void
+cfunbody(JF, js_Ast *name, js_Ast *params, js_Ast *body, int is_fun_exp)
 {
 	F->lightweight = 1;
 	F->arguments = 0;
@@ -1417,12 +1473,14 @@ static void cfunbody(JF, js_Ast *name, js_Ast *params, js_Ast *body, int is_fun_
 	}
 }
 
-js_Function *jsC_compilefunction(js_State *J, js_Ast *prog)
+js_Function*
+jsC_compilefunction(js_State *J, js_Ast *prog)
 {
 	return newfun(J, prog->line, prog->a, prog->b, prog->c, 0, J->default_strict, 1);
 }
 
-js_Function *jsC_compilescript(js_State *J, js_Ast *prog, int default_strict)
+js_Function*
+jsC_compilescript(js_State *J, js_Ast *prog, int default_strict)
 {
 	return newfun(J, prog ? prog->line : 0, NULL, NULL, prog, 1, default_strict, 0);
 }

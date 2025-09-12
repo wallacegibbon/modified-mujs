@@ -6,24 +6,28 @@ typedef unsigned __int64 uint64_t;
 #include <stdint.h>
 #endif
 
-static void jsB_new_Number(js_State *J)
+static void
+jsB_new_Number(js_State *J)
 {
 	js_newnumber(J, js_gettop(J) > 1 ? js_tonumber(J, 1) : 0);
 }
 
-static void jsB_Number(js_State *J)
+static void
+jsB_Number(js_State *J)
 {
 	js_pushnumber(J, js_gettop(J) > 1 ? js_tonumber(J, 1) : 0);
 }
 
-static void Np_valueOf(js_State *J)
+static void
+Np_valueOf(js_State *J)
 {
 	js_Object *self = js_toobject(J, 0);
 	if (self->type != JS_CNUMBER) js_typeerror(J, "not a number");
 	js_pushnumber(J, self->u.number);
 }
 
-static void Np_toString(js_State *J)
+static void
+Np_toString(js_State *J)
 {
 	char buf[100];
 	js_Object *self = js_toobject(J, 0);
@@ -112,7 +116,8 @@ static void Np_toString(js_State *J)
 }
 
 /* Customized ToString() on a number */
-static void numtostr(js_State *J, const char *fmt, int w, double n)
+static void
+numtostr(js_State *J, const char *fmt, int w, double n)
 {
 	/* buf needs to fit printf("%.20f", 1e20) */
 	char buf[50], *e;
@@ -125,7 +130,8 @@ static void numtostr(js_State *J, const char *fmt, int w, double n)
 	js_pushstring(J, buf);
 }
 
-static void Np_toFixed(js_State *J)
+static void
+Np_toFixed(js_State *J)
 {
 	js_Object *self = js_toobject(J, 0);
 	int width = js_tointeger(J, 1);
@@ -141,7 +147,8 @@ static void Np_toFixed(js_State *J)
 		numtostr(J, "%.*f", width, x);
 }
 
-static void Np_toExponential(js_State *J)
+static void
+Np_toExponential(js_State *J)
 {
 	js_Object *self = js_toobject(J, 0);
 	int width = js_tointeger(J, 1);
@@ -157,7 +164,8 @@ static void Np_toExponential(js_State *J)
 		numtostr(J, "%.*e", width, x);
 }
 
-static void Np_toPrecision(js_State *J)
+static void
+Np_toPrecision(js_State *J)
 {
 	js_Object *self = js_toobject(J, 0);
 	int width = js_tointeger(J, 1);
@@ -173,7 +181,8 @@ static void Np_toPrecision(js_State *J)
 		numtostr(J, "%.*g", width, x);
 }
 
-void jsB_initnumber(js_State *J)
+void
+jsB_initnumber(js_State *J)
 {
 	J->Number_prototype->u.number = 0;
 

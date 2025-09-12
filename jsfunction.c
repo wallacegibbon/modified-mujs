@@ -1,6 +1,7 @@
 #include "jsi.h"
 
-static void jsB_Function(js_State *J)
+static void
+jsB_Function(js_State *J)
 {
 	int i, top = js_gettop(J);
 	js_Buffer *sb = NULL;
@@ -38,12 +39,14 @@ static void jsB_Function(js_State *J)
 	js_newfunction(J, fun, J->GE);
 }
 
-static void jsB_Function_prototype(js_State *J)
+static void
+jsB_Function_prototype(js_State *J)
 {
 	js_pushundefined(J);
 }
 
-static void Fp_toString(js_State *J)
+static void
+Fp_toString(js_State *J)
 {
 	js_Object *self = js_toobject(J, 0);
 	js_Buffer *sb = NULL;
@@ -92,7 +95,8 @@ static void Fp_toString(js_State *J)
 	}
 }
 
-static void Fp_apply(js_State *J)
+static void
+Fp_apply(js_State *J)
 {
 	int i, n;
 
@@ -115,7 +119,8 @@ static void Fp_apply(js_State *J)
 	js_call(J, n);
 }
 
-static void Fp_call(js_State *J)
+static void
+Fp_call(js_State *J)
 {
 	int i, top = js_gettop(J);
 
@@ -128,7 +133,8 @@ static void Fp_call(js_State *J)
 	js_call(J, top - 2);
 }
 
-static void callbound(js_State *J)
+static void
+callbound(js_State *J)
 {
 	int top = js_gettop(J);
 	int i, fun, args, n;
@@ -153,7 +159,8 @@ static void callbound(js_State *J)
 	js_call(J, n + top - 1);
 }
 
-static void constructbound(js_State *J)
+static void
+constructbound(js_State *J)
 {
 	int top = js_gettop(J);
 	int i, fun, args, n;
@@ -177,7 +184,8 @@ static void constructbound(js_State *J)
 	js_construct(J, n + top - 1);
 }
 
-static void Fp_bind(js_State *J)
+static void
+Fp_bind(js_State *J)
 {
 	int i, top = js_gettop(J);
 	int n;
@@ -212,7 +220,8 @@ static void Fp_bind(js_State *J)
 	js_defproperty(J, -2, "__BoundArguments__", JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 }
 
-void jsB_initfunction(js_State *J)
+void
+jsB_initfunction(js_State *J)
 {
 	J->Function_prototype->u.c.name = "Function.prototype";
 	J->Function_prototype->u.c.function = jsB_Function_prototype;

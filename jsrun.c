@@ -11,7 +11,8 @@ static void jsR_run(js_State *J, js_Function *F);
 #define TOP (J->top)
 #define BOT (J->bot)
 
-static void js_trystackoverflow(js_State *J)
+static void
+js_trystackoverflow(js_State *J)
 {
 	STACK[TOP].t.type = JS_TLITSTR;
 	STACK[TOP].u.litstr = "exception stack overflow";
@@ -19,7 +20,8 @@ static void js_trystackoverflow(js_State *J)
 	js_throw(J);
 }
 
-static void js_stackoverflow(js_State *J)
+static void
+js_stackoverflow(js_State *J)
 {
 	STACK[TOP].t.type = JS_TLITSTR;
 	STACK[TOP].u.litstr = "stack overflow";
@@ -27,7 +29,8 @@ static void js_stackoverflow(js_State *J)
 	js_throw(J);
 }
 
-static void js_outofmemory(js_State *J)
+static void
+js_outofmemory(js_State *J)
 {
 	STACK[TOP].t.type = JS_TLITSTR;
 	STACK[TOP].u.litstr = "out of memory";
@@ -35,7 +38,8 @@ static void js_outofmemory(js_State *J)
 	js_throw(J);
 }
 
-void *js_malloc(js_State *J, int size)
+void*
+js_malloc(js_State *J, int size)
 {
 	void *ptr = J->alloc(J->actx, NULL, size);
 	if (!ptr)
@@ -43,7 +47,8 @@ void *js_malloc(js_State *J, int size)
 	return ptr;
 }
 
-void *js_realloc(js_State *J, void *ptr, int size)
+void*
+js_realloc(js_State *J, void *ptr, int size)
 {
 	ptr = J->alloc(J->actx, ptr, size);
 	if (!ptr)
@@ -51,7 +56,8 @@ void *js_realloc(js_State *J, void *ptr, int size)
 	return ptr;
 }
 
-char *js_strdup(js_State *J, const char *s)
+char*
+js_strdup(js_State *J, const char *s)
 {
 	int n = strlen(s) + 1;
 	char *p = js_malloc(J, n);
@@ -59,12 +65,14 @@ char *js_strdup(js_State *J, const char *s)
 	return p;
 }
 
-void js_free(js_State *J, void *ptr)
+void
+js_free(js_State *J, void *ptr)
 {
 	J->alloc(J->actx, ptr, 0);
 }
 
-js_String *jsV_newmemstring(js_State *J, const char *s, int n)
+js_String*
+jsV_newmemstring(js_State *J, const char *s, int n)
 {
 	js_String *v = js_malloc(J, soffsetof(js_String, p) + n + 1);
 	memcpy(v->p, s, n);
@@ -78,28 +86,32 @@ js_String *jsV_newmemstring(js_State *J, const char *s, int n)
 
 #define CHECKSTACK(n) if (TOP + n >= JS_STACKSIZE) js_stackoverflow(J)
 
-void js_pushvalue(js_State *J, js_Value v)
+void
+js_pushvalue(js_State *J, js_Value v)
 {
 	CHECKSTACK(1);
 	STACK[TOP] = v;
 	++TOP;
 }
 
-void js_pushundefined(js_State *J)
+void
+js_pushundefined(js_State *J)
 {
 	CHECKSTACK(1);
 	STACK[TOP].t.type = JS_TUNDEFINED;
 	++TOP;
 }
 
-void js_pushnull(js_State *J)
+void
+js_pushnull(js_State *J)
 {
 	CHECKSTACK(1);
 	STACK[TOP].t.type = JS_TNULL;
 	++TOP;
 }
 
-void js_pushboolean(js_State *J, int v)
+void
+js_pushboolean(js_State *J, int v)
 {
 	CHECKSTACK(1);
 	STACK[TOP].t.type = JS_TBOOLEAN;
@@ -107,7 +119,8 @@ void js_pushboolean(js_State *J, int v)
 	++TOP;
 }
 
-void js_pushnumber(js_State *J, double v)
+void
+js_pushnumber(js_State *J, double v)
 {
 	CHECKSTACK(1);
 	STACK[TOP].t.type = JS_TNUMBER;
@@ -115,7 +128,8 @@ void js_pushnumber(js_State *J, double v)
 	++TOP;
 }
 
-void js_pushstring(js_State *J, const char *v)
+void
+js_pushstring(js_State *J, const char *v)
 {
 	size_t n = strlen(v);
 	if (n > JS_STRLIMIT)
@@ -133,7 +147,8 @@ void js_pushstring(js_State *J, const char *v)
 	++TOP;
 }
 
-void js_pushlstring(js_State *J, const char *v, int n)
+void
+js_pushlstring(js_State *J, const char *v, int n)
 {
 	if (n > JS_STRLIMIT)
 		js_rangeerror(J, "invalid string length");
@@ -150,7 +165,8 @@ void js_pushlstring(js_State *J, const char *v, int n)
 	++TOP;
 }
 
-void js_pushliteral(js_State *J, const char *v)
+void
+js_pushliteral(js_State *J, const char *v)
 {
 	CHECKSTACK(1);
 	STACK[TOP].t.type = JS_TLITSTR;
@@ -158,7 +174,8 @@ void js_pushliteral(js_State *J, const char *v)
 	++TOP;
 }
 
-void js_pushobject(js_State *J, js_Object *v)
+void
+js_pushobject(js_State *J, js_Object *v)
 {
 	CHECKSTACK(1);
 	STACK[TOP].t.type = JS_TOBJECT;
@@ -166,12 +183,14 @@ void js_pushobject(js_State *J, js_Object *v)
 	++TOP;
 }
 
-void js_pushglobal(js_State *J)
+void
+js_pushglobal(js_State *J)
 {
 	js_pushobject(J, J->G);
 }
 
-void js_currentfunction(js_State *J)
+void
+js_currentfunction(js_State *J)
 {
 	CHECKSTACK(1);
 	if (BOT > 0)
@@ -181,7 +200,8 @@ void js_currentfunction(js_State *J)
 	++TOP;
 }
 
-void *js_currentfunctiondata(js_State *J)
+void*
+js_currentfunctiondata(js_State *J)
 {
 	if (BOT > 0)
 		return STACK[BOT-1].u.object->u.c.data;
@@ -190,7 +210,8 @@ void *js_currentfunctiondata(js_State *J)
 
 /* Read values from stack */
 
-static js_Value *stackidx(js_State *J, int idx)
+static js_Value*
+stackidx(js_State *J, int idx)
 {
 	static js_Value undefined = { { {0}, JS_TUNDEFINED } };
 	idx = idx < 0 ? TOP + idx : BOT + idx;
@@ -199,7 +220,8 @@ static js_Value *stackidx(js_State *J, int idx)
 	return STACK + idx;
 }
 
-js_Value *js_tovalue(js_State *J, int idx)
+js_Value*
+js_tovalue(js_State *J, int idx)
 {
 	return stackidx(J, idx);
 }
@@ -214,7 +236,8 @@ int js_isprimitive(js_State *J, int idx) { return stackidx(J, idx)->t.type != JS
 int js_isobject(js_State *J, int idx) { return stackidx(J, idx)->t.type == JS_TOBJECT; }
 int js_iscoercible(js_State *J, int idx) { js_Value *v = stackidx(J, idx); return v->t.type != JS_TUNDEFINED && v->t.type != JS_TNULL; }
 
-int js_iscallable(js_State *J, int idx)
+int
+js_iscallable(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	if (v->t.type == JS_TOBJECT)
@@ -224,19 +247,22 @@ int js_iscallable(js_State *J, int idx)
 	return 0;
 }
 
-int js_isarray(js_State *J, int idx)
+int
+js_isarray(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	return v->t.type == JS_TOBJECT && v->u.object->type == JS_CARRAY;
 }
 
-int js_isregexp(js_State *J, int idx)
+int
+js_isregexp(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	return v->t.type == JS_TOBJECT && v->u.object->type == JS_CREGEXP;
 }
 
-int js_isuserdata(js_State *J, int idx, const char *tag)
+int
+js_isuserdata(js_State *J, int idx, const char *tag)
 {
 	js_Value *v = stackidx(J, idx);
 	if (v->t.type == JS_TOBJECT && v->u.object->type == JS_CUSERDATA)
@@ -244,13 +270,15 @@ int js_isuserdata(js_State *J, int idx, const char *tag)
 	return 0;
 }
 
-int js_iserror(js_State *J, int idx)
+int
+js_iserror(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	return v->t.type == JS_TOBJECT && v->u.object->type == JS_CERROR;
 }
 
-const char *js_typeof(js_State *J, int idx)
+const char*
+js_typeof(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	switch (v->t.type) {
@@ -269,7 +297,8 @@ const char *js_typeof(js_State *J, int idx)
 	}
 }
 
-int js_type(js_State *J, int idx)
+int
+js_type(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	switch (v->t.type) {
@@ -288,57 +317,68 @@ int js_type(js_State *J, int idx)
 	}
 }
 
-int js_toboolean(js_State *J, int idx)
+int
+js_toboolean(js_State *J, int idx)
 {
 	return jsV_toboolean(J, stackidx(J, idx));
 }
 
-double js_tonumber(js_State *J, int idx)
+double
+js_tonumber(js_State *J, int idx)
 {
 	return jsV_tonumber(J, stackidx(J, idx));
 }
 
-int js_tointeger(js_State *J, int idx)
+int
+js_tointeger(js_State *J, int idx)
 {
 	return jsV_numbertointeger(jsV_tonumber(J, stackidx(J, idx)));
 }
 
-int js_toint32(js_State *J, int idx)
+int
+js_toint32(js_State *J, int idx)
 {
 	return jsV_numbertoint32(jsV_tonumber(J, stackidx(J, idx)));
 }
 
-unsigned int js_touint32(js_State *J, int idx)
+unsigned int
+js_touint32(js_State *J, int idx)
 {
 	return jsV_numbertouint32(jsV_tonumber(J, stackidx(J, idx)));
 }
 
-short js_toint16(js_State *J, int idx)
+short
+js_toint16(js_State *J, int idx)
 {
 	return jsV_numbertoint16(jsV_tonumber(J, stackidx(J, idx)));
 }
 
-unsigned short js_touint16(js_State *J, int idx)
+unsigned short
+js_touint16(js_State *J, int idx)
 {
 	return jsV_numbertouint16(jsV_tonumber(J, stackidx(J, idx)));
 }
 
-const char *js_tostring(js_State *J, int idx)
+const char*
+js_tostring(js_State *J, int idx)
 {
 	return jsV_tostring(J, stackidx(J, idx));
 }
 
-js_Object *js_toobject(js_State *J, int idx)
+js_Object*
+js_toobject(js_State *J, int idx)
 {
 	return jsV_toobject(J, stackidx(J, idx));
 }
 
-void js_toprimitive(js_State *J, int idx, int hint)
+void
+js_toprimitive(js_State *J, int idx, int hint)
 {
 	jsV_toprimitive(J, stackidx(J, idx), hint);
 }
 
-js_Regexp *js_toregexp(js_State *J, int idx)
+js_Regexp*
+js_toregexp(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	if (v->t.type == JS_TOBJECT && v->u.object->type == JS_CREGEXP)
@@ -346,7 +386,8 @@ js_Regexp *js_toregexp(js_State *J, int idx)
 	js_typeerror(J, "not a regexp");
 }
 
-void *js_touserdata(js_State *J, int idx, const char *tag)
+void*
+js_touserdata(js_State *J, int idx, const char *tag)
 {
 	js_Value *v = stackidx(J, idx);
 	if (v->t.type == JS_TOBJECT && v->u.object->type == JS_CUSERDATA)
@@ -355,7 +396,8 @@ void *js_touserdata(js_State *J, int idx, const char *tag)
 	js_typeerror(J, "not a %s", tag);
 }
 
-static js_Object *jsR_tofunction(js_State *J, int idx)
+static js_Object*
+jsR_tofunction(js_State *J, int idx)
 {
 	js_Value *v = stackidx(J, idx);
 	if (v->t.type == JS_TUNDEFINED || v->t.type == JS_TNULL)
@@ -368,12 +410,14 @@ static js_Object *jsR_tofunction(js_State *J, int idx)
 
 /* Stack manipulation */
 
-int js_gettop(js_State *J)
+int
+js_gettop(js_State *J)
 {
 	return TOP - BOT;
 }
 
-void js_pop(js_State *J, int n)
+void
+js_pop(js_State *J, int n)
 {
 	TOP -= n;
 	if (TOP < BOT) {
@@ -382,7 +426,8 @@ void js_pop(js_State *J, int n)
 	}
 }
 
-void js_remove(js_State *J, int idx)
+void
+js_remove(js_State *J, int idx)
 {
 	idx = idx < 0 ? TOP + idx : BOT + idx;
 	if (idx < BOT || idx >= TOP)
@@ -392,12 +437,14 @@ void js_remove(js_State *J, int idx)
 	--TOP;
 }
 
-void js_insert(js_State *J, int idx)
+void
+js_insert(js_State *J, int idx)
 {
 	js_error(J, "not implemented yet");
 }
 
-void js_replace(js_State* J, int idx)
+void
+js_replace(js_State* J, int idx)
 {
 	idx = idx < 0 ? TOP + idx : BOT + idx;
 	if (idx < BOT || idx >= TOP)
@@ -405,21 +452,24 @@ void js_replace(js_State* J, int idx)
 	STACK[idx] = STACK[--TOP];
 }
 
-void js_copy(js_State *J, int idx)
+void
+js_copy(js_State *J, int idx)
 {
 	CHECKSTACK(1);
 	STACK[TOP] = *stackidx(J, idx);
 	++TOP;
 }
 
-void js_dup(js_State *J)
+void
+js_dup(js_State *J)
 {
 	CHECKSTACK(1);
 	STACK[TOP] = STACK[TOP-1];
 	++TOP;
 }
 
-void js_dup2(js_State *J)
+void
+js_dup2(js_State *J)
 {
 	CHECKSTACK(2);
 	STACK[TOP] = STACK[TOP-2];
@@ -427,7 +477,8 @@ void js_dup2(js_State *J)
 	TOP += 2;
 }
 
-void js_rot2(js_State *J)
+void
+js_rot2(js_State *J)
 {
 	/* A B -> B A */
 	js_Value tmp = STACK[TOP-1];	/* A B (B) */
@@ -435,7 +486,8 @@ void js_rot2(js_State *J)
 	STACK[TOP-2] = tmp;		/* B A */
 }
 
-void js_rot3(js_State *J)
+void
+js_rot3(js_State *J)
 {
 	/* A B C -> C A B */
 	js_Value tmp = STACK[TOP-1];	/* A B C (C) */
@@ -444,7 +496,8 @@ void js_rot3(js_State *J)
 	STACK[TOP-3] = tmp;		/* C A B */
 }
 
-void js_rot4(js_State *J)
+void
+js_rot4(js_State *J)
 {
 	/* A B C D -> D A B C */
 	js_Value tmp = STACK[TOP-1];	/* A B C D (D) */
@@ -454,14 +507,16 @@ void js_rot4(js_State *J)
 	STACK[TOP-4] = tmp;		/* D A B C */
 }
 
-void js_rot2pop1(js_State *J)
+void
+js_rot2pop1(js_State *J)
 {
 	/* A B -> B */
 	STACK[TOP-2] = STACK[TOP-1];
 	--TOP;
 }
 
-void js_rot3pop2(js_State *J)
+void
+js_rot3pop2(js_State *J)
 {
 	/* A B C -> C */
 	STACK[TOP-3] = STACK[TOP-1];
@@ -479,7 +534,8 @@ void js_rot(js_State *J, int n)
 
 /* Property access that takes care of attributes and getters/setters */
 
-int js_isarrayindex(js_State *J, const char *p, int *idx)
+int
+js_isarrayindex(js_State *J, const char *p, int *idx)
 {
 	int n = 0;
 
@@ -504,7 +560,8 @@ int js_isarrayindex(js_State *J, const char *p, int *idx)
 	return *idx = n, 1;
 }
 
-static void js_pushrune(js_State *J, Rune rune)
+static void
+js_pushrune(js_State *J, Rune rune)
 {
 	char buf[UTFmax + 1];
 	if (rune >= 0) {
@@ -515,7 +572,8 @@ static void js_pushrune(js_State *J, Rune rune)
 	}
 }
 
-void jsR_unflattenarray(js_State *J, js_Object *obj)
+void
+jsR_unflattenarray(js_State *J, js_Object *obj)
 {
 	if (obj->type == JS_CARRAY && obj->u.a.simple) {
 		js_Property *ref;
@@ -539,7 +597,8 @@ void jsR_unflattenarray(js_State *J, js_Object *obj)
 	}
 }
 
-static int jsR_hasproperty(js_State *J, js_Object *obj, const char *name)
+static int
+jsR_hasproperty(js_State *J, js_Object *obj, const char *name)
 {
 	js_Property *ref;
 	int k;
@@ -616,13 +675,15 @@ static int jsR_hasproperty(js_State *J, js_Object *obj, const char *name)
 	return 0;
 }
 
-static void jsR_getproperty(js_State *J, js_Object *obj, const char *name)
+static void
+jsR_getproperty(js_State *J, js_Object *obj, const char *name)
 {
 	if (!jsR_hasproperty(J, obj, name))
 		js_pushundefined(J);
 }
 
-static int jsR_hasindex(js_State *J, js_Object *obj, int k)
+static int
+jsR_hasindex(js_State *J, js_Object *obj, int k)
 {
 	char buf[32];
 	if (obj->type == JS_CARRAY && obj->u.a.simple) {
@@ -635,13 +696,15 @@ static int jsR_hasindex(js_State *J, js_Object *obj, int k)
 	return jsR_hasproperty(J, obj, js_itoa(buf, k));
 }
 
-static void jsR_getindex(js_State *J, js_Object *obj, int k)
+static void
+jsR_getindex(js_State *J, js_Object *obj, int k)
 {
 	if (!jsR_hasindex(J, obj, k))
 		js_pushundefined(J);
 }
 
-static void jsR_setarrayindex(js_State *J, js_Object *obj, int k, js_Value *value)
+static void
+jsR_setarrayindex(js_State *J, js_Object *obj, int k, js_Value *value)
 {
 	int newlen = k + 1;
 	assert(obj->u.a.simple);
@@ -666,7 +729,8 @@ static void jsR_setarrayindex(js_State *J, js_Object *obj, int k, js_Value *valu
 	obj->u.a.array[k] = *value;
 }
 
-static void jsR_setproperty(js_State *J, js_Object *obj, const char *name, int transient)
+static void
+jsR_setproperty(js_State *J, js_Object *obj, const char *name, int transient)
 {
 	js_Value *value = stackidx(J, -1);
 	js_Property *ref;
@@ -774,7 +838,8 @@ readonly:
 		js_typeerror(J, "'%s' is read-only", name);
 }
 
-static void jsR_setindex(js_State *J, js_Object *obj, int k, int transient)
+static void
+jsR_setindex(js_State *J, js_Object *obj, int k, int transient)
 {
 	char buf[32];
 	if (obj->type == JS_CARRAY && obj->u.a.simple && k >= 0 && k <= obj->u.a.flat_length) {
@@ -784,7 +849,8 @@ static void jsR_setindex(js_State *J, js_Object *obj, int k, int transient)
 	}
 }
 
-static void jsR_defproperty(js_State *J, js_Object *obj, const char *name,
+static void
+jsR_defproperty(js_State *J, js_Object *obj, const char *name,
 	int atts, js_Value *value, js_Object *getter, js_Object *setter,
 	int throw)
 {
@@ -849,7 +915,8 @@ readonly:
 		js_typeerror(J, "'%s' is read-only or non-configurable", name);
 }
 
-static int jsR_delproperty(js_State *J, js_Object *obj, const char *name)
+static int
+jsR_delproperty(js_State *J, js_Object *obj, const char *name)
 {
 	js_Property *ref;
 	int k;
@@ -896,7 +963,8 @@ dontconf:
 	return 0;
 }
 
-static void jsR_delindex(js_State *J, js_Object *obj, int k)
+static void
+jsR_delindex(js_State *J, js_Object *obj, int k)
 {
 	char buf[32];
 	/* Allow deleting last element of a simple array without unflattening */
@@ -908,7 +976,8 @@ static void jsR_delindex(js_State *J, js_Object *obj, int k)
 
 /* Registry, global and object property accessors */
 
-const char *js_ref(js_State *J)
+const char*
+js_ref(js_State *J)
 {
 	js_Value *v = stackidx(J, -1);
 	const char *s;
@@ -932,118 +1001,139 @@ const char *js_ref(js_State *J)
 	return s;
 }
 
-void js_unref(js_State *J, const char *ref)
+void
+js_unref(js_State *J, const char *ref)
 {
 	js_delregistry(J, ref);
 }
 
-void js_getregistry(js_State *J, const char *name)
+void
+js_getregistry(js_State *J, const char *name)
 {
 	jsR_getproperty(J, J->R, name);
 }
 
-void js_setregistry(js_State *J, const char *name)
+void
+js_setregistry(js_State *J, const char *name)
 {
 	jsR_setproperty(J, J->R, name, 0);
 	js_pop(J, 1);
 }
 
-void js_delregistry(js_State *J, const char *name)
+void
+js_delregistry(js_State *J, const char *name)
 {
 	jsR_delproperty(J, J->R, name);
 }
 
-void js_getglobal(js_State *J, const char *name)
+void
+js_getglobal(js_State *J, const char *name)
 {
 	jsR_getproperty(J, J->G, name);
 }
 
-void js_setglobal(js_State *J, const char *name)
+void
+js_setglobal(js_State *J, const char *name)
 {
 	jsR_setproperty(J, J->G, name, 0);
 	js_pop(J, 1);
 }
 
-void js_defglobal(js_State *J, const char *name, int atts)
+void
+js_defglobal(js_State *J, const char *name, int atts)
 {
 	jsR_defproperty(J, J->G, name, atts, stackidx(J, -1), NULL, NULL, 0);
 	js_pop(J, 1);
 }
 
-void js_delglobal(js_State *J, const char *name)
+void
+js_delglobal(js_State *J, const char *name)
 {
 	jsR_delproperty(J, J->G, name);
 }
 
-void js_getproperty(js_State *J, int idx, const char *name)
+void
+js_getproperty(js_State *J, int idx, const char *name)
 {
 	jsR_getproperty(J, js_toobject(J, idx), name);
 }
 
-void js_setproperty(js_State *J, int idx, const char *name)
+void
+js_setproperty(js_State *J, int idx, const char *name)
 {
 	jsR_setproperty(J, js_toobject(J, idx), name, !js_isobject(J, idx));
 	js_pop(J, 1);
 }
 
-void js_defproperty(js_State *J, int idx, const char *name, int atts)
+void
+js_defproperty(js_State *J, int idx, const char *name, int atts)
 {
 	jsR_defproperty(J, js_toobject(J, idx), name, atts, stackidx(J, -1), NULL, NULL, 1);
 	js_pop(J, 1);
 }
 
-void js_delproperty(js_State *J, int idx, const char *name)
+void
+js_delproperty(js_State *J, int idx, const char *name)
 {
 	jsR_delproperty(J, js_toobject(J, idx), name);
 }
 
-void js_defaccessor(js_State *J, int idx, const char *name, int atts)
+void
+js_defaccessor(js_State *J, int idx, const char *name, int atts)
 {
 	jsR_defproperty(J, js_toobject(J, idx), name, atts, NULL, jsR_tofunction(J, -2), jsR_tofunction(J, -1), 1);
 	js_pop(J, 2);
 }
 
-int js_hasproperty(js_State *J, int idx, const char *name)
+int
+js_hasproperty(js_State *J, int idx, const char *name)
 {
 	return jsR_hasproperty(J, js_toobject(J, idx), name);
 }
 
-void js_getindex(js_State *J, int idx, int i)
+void
+js_getindex(js_State *J, int idx, int i)
 {
 	jsR_getindex(J, js_toobject(J, idx), i);
 }
 
-int js_hasindex(js_State *J, int idx, int i)
+int
+js_hasindex(js_State *J, int idx, int i)
 {
 	return jsR_hasindex(J, js_toobject(J, idx), i);
 }
 
-void js_setindex(js_State *J, int idx, int i)
+void
+js_setindex(js_State *J, int idx, int i)
 {
 	jsR_setindex(J, js_toobject(J, idx), i, !js_isobject(J, idx));
 	js_pop(J, 1);
 }
 
-void js_delindex(js_State *J, int idx, int i)
+void
+js_delindex(js_State *J, int idx, int i)
 {
 	jsR_delindex(J, js_toobject(J, idx), i);
 }
 
 /* Iterator */
 
-void js_pushiterator(js_State *J, int idx, int own)
+void
+js_pushiterator(js_State *J, int idx, int own)
 {
 	js_pushobject(J, jsV_newiterator(J, js_toobject(J, idx), own));
 }
 
-const char *js_nextiterator(js_State *J, int idx)
+const char*
+js_nextiterator(js_State *J, int idx)
 {
 	return jsV_nextiterator(J, js_toobject(J, idx));
 }
 
 /* Environment records */
 
-js_Environment *jsR_newenvironment(js_State *J, js_Object *vars, js_Environment *outer)
+js_Environment*
+jsR_newenvironment(js_State *J, js_Object *vars, js_Environment *outer)
 {
 	js_Environment *E = js_malloc(J, sizeof *E);
 	E->gcmark = 0;
@@ -1056,12 +1146,14 @@ js_Environment *jsR_newenvironment(js_State *J, js_Object *vars, js_Environment 
 	return E;
 }
 
-static void js_initvar(js_State *J, const char *name, int idx)
+static void
+js_initvar(js_State *J, const char *name, int idx)
 {
 	jsR_defproperty(J, J->E->variables, name, JS_DONTENUM | JS_DONTCONF, stackidx(J, idx), NULL, NULL, 0);
 }
 
-static int js_hasvar(js_State *J, const char *name)
+static int
+js_hasvar(js_State *J, const char *name)
 {
 	js_Environment *E = J->E;
 	do {
@@ -1081,7 +1173,8 @@ static int js_hasvar(js_State *J, const char *name)
 	return 0;
 }
 
-static void js_setvar(js_State *J, const char *name)
+static void
+js_setvar(js_State *J, const char *name)
 {
 	js_Environment *E = J->E;
 	do {
@@ -1108,7 +1201,8 @@ static void js_setvar(js_State *J, const char *name)
 	jsR_setproperty(J, J->G, name, 0);
 }
 
-static int js_delvar(js_State *J, const char *name)
+static int
+js_delvar(js_State *J, const char *name)
 {
 	js_Environment *E = J->E;
 	do {
@@ -1129,7 +1223,8 @@ static int js_delvar(js_State *J, const char *name)
 
 /* Function calls */
 
-static void jsR_savescope(js_State *J, js_Environment *newE)
+static void
+jsR_savescope(js_State *J, js_Environment *newE)
 {
 	if (J->envtop + 1 >= JS_ENVLIMIT)
 		js_stackoverflow(J);
@@ -1137,12 +1232,14 @@ static void jsR_savescope(js_State *J, js_Environment *newE)
 	J->E = newE;
 }
 
-static void jsR_restorescope(js_State *J)
+static void
+jsR_restorescope(js_State *J)
 {
 	J->E = J->envstack[--J->envtop];
 }
 
-static void jsR_calllwfunction(js_State *J, int n, js_Function *F, js_Environment *scope)
+static void
+jsR_calllwfunction(js_State *J, int n, js_Function *F, js_Environment *scope)
 {
 	js_Value v;
 	int i;
@@ -1165,7 +1262,8 @@ static void jsR_calllwfunction(js_State *J, int n, js_Function *F, js_Environmen
 	jsR_restorescope(J);
 }
 
-static void jsR_callfunction(js_State *J, int n, js_Function *F, js_Environment *scope)
+static void
+jsR_callfunction(js_State *J, int n, js_Function *F, js_Environment *scope)
 {
 	js_Value v;
 	int i;
@@ -1208,7 +1306,8 @@ static void jsR_callfunction(js_State *J, int n, js_Function *F, js_Environment 
 	jsR_restorescope(J);
 }
 
-static void jsR_callscript(js_State *J, int n, js_Function *F, js_Environment *scope)
+static void
+jsR_callscript(js_State *J, int n, js_Function *F, js_Environment *scope)
 {
 	js_Value v;
 	int i;
@@ -1237,7 +1336,8 @@ static void jsR_callscript(js_State *J, int n, js_Function *F, js_Environment *s
 		jsR_restorescope(J);
 }
 
-static void jsR_callcfunction(js_State *J, int n, int min, js_CFunction F)
+static void
+jsR_callcfunction(js_State *J, int n, int min, js_CFunction F)
 {
 	int save_top;
 	int i;
@@ -1258,7 +1358,8 @@ static void jsR_callcfunction(js_State *J, int n, int min, js_CFunction F)
 	}
 }
 
-static void jsR_pushtrace(js_State *J, const char *name, const char *file, int line)
+static void
+jsR_pushtrace(js_State *J, const char *name, const char *file, int line)
 {
 	if (J->tracetop + 1 == JS_ENVLIMIT)
 		js_error(J, "call stack overflow");
@@ -1268,7 +1369,8 @@ static void jsR_pushtrace(js_State *J, const char *name, const char *file, int l
 	J->trace[J->tracetop].line = line;
 }
 
-void js_call(js_State *J, int n)
+void
+js_call(js_State *J, int n)
 {
 	js_Object *obj;
 	int savebot;
@@ -1304,7 +1406,8 @@ void js_call(js_State *J, int n)
 	BOT = savebot;
 }
 
-void js_construct(js_State *J, int n)
+void
+js_construct(js_State *J, int n)
 {
 	js_Object *obj;
 	js_Object *prototype;
@@ -1360,7 +1463,8 @@ void js_construct(js_State *J, int n)
 	}
 }
 
-void js_eval(js_State *J)
+void
+js_eval(js_State *J)
 {
 	if (!js_isstring(J, -1))
 		return;
@@ -1370,7 +1474,8 @@ void js_eval(js_State *J)
 	js_call(J, 0);
 }
 
-int js_pconstruct(js_State *J, int n)
+int
+js_pconstruct(js_State *J, int n)
 {
 	int savetop = TOP - n - 2;
 	if (js_try(J)) {
@@ -1384,7 +1489,8 @@ int js_pconstruct(js_State *J, int n)
 	return 0;
 }
 
-int js_pcall(js_State *J, int n)
+int
+js_pcall(js_State *J, int n)
 {
 	int savetop = TOP - n - 2;
 	if (js_try(J)) {
@@ -1400,7 +1506,8 @@ int js_pcall(js_State *J, int n)
 
 /* Exceptions */
 
-void *js_savetrypc(js_State *J, js_Instruction *pc)
+void*
+js_savetrypc(js_State *J, js_Instruction *pc)
 {
 	if (J->trytop == JS_TRYLIMIT)
 		js_trystackoverflow(J);
@@ -1414,7 +1521,8 @@ void *js_savetrypc(js_State *J, js_Instruction *pc)
 	return J->trybuf[J->trytop++].buf;
 }
 
-void *js_savetry(js_State *J)
+void*
+js_savetry(js_State *J)
 {
 	if (J->trytop == JS_TRYLIMIT)
 		js_trystackoverflow(J);
@@ -1428,14 +1536,16 @@ void *js_savetry(js_State *J)
 	return J->trybuf[J->trytop++].buf;
 }
 
-void js_endtry(js_State *J)
+void
+js_endtry(js_State *J)
 {
 	if (J->trytop == 0)
 		js_error(J, "endtry: exception stack underflow");
 	--J->trytop;
 }
 
-void js_throw(js_State *J)
+void
+js_throw(js_State *J)
 {
 	if (J->trytop > 0) {
 		js_Value v = *stackidx(J, -1);
@@ -1456,7 +1566,8 @@ void js_throw(js_State *J)
 
 /* Main interpreter loop */
 
-static void js_dumpvalue(js_State *J, js_Value v)
+static void
+js_dumpvalue(js_State *J, js_Value v)
 {
 	switch (v.t.type) {
 	case JS_TUNDEFINED: printf("undefined"); break;
@@ -1498,7 +1609,8 @@ static void js_dumpvalue(js_State *J, js_Value v)
 	}
 }
 
-static void js_stacktrace(js_State *J)
+static void
+js_stacktrace(js_State *J)
 {
 	int n;
 	printf("stack trace:\n");
@@ -1516,7 +1628,8 @@ static void js_stacktrace(js_State *J)
 	}
 }
 
-static void js_dumpstack(js_State *J)
+static void
+js_dumpstack(js_State *J)
 {
 	int i;
 	printf("stack {\n");
@@ -1529,13 +1642,15 @@ static void js_dumpstack(js_State *J)
 	printf("}\n");
 }
 
-void js_trap(js_State *J, int pc)
+void
+js_trap(js_State *J, int pc)
 {
 	js_dumpstack(J);
 	js_stacktrace(J);
 }
 
-static int jsR_isindex(js_State *J, int idx, int *k)
+static int
+jsR_isindex(js_State *J, int idx, int *k)
 {
 	js_Value *v = stackidx(J, idx);
 	if (v->t.type == JS_TNUMBER) {
@@ -1545,7 +1660,8 @@ static int jsR_isindex(js_State *J, int idx, int *k)
 	return 0;
 }
 
-static void jsR_run(js_State *J, js_Function *F)
+static void
+jsR_run(js_State *J, js_Function *F)
 {
 	js_Function **FT = F->funtab;
 	const char **VT = F->vartab-1;

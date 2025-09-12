@@ -20,7 +20,8 @@ typedef unsigned __int64 uint64_t;
 /*
  * format exponent like sprintf(p, "e%+d", e)
  */
-void js_fmtexp(char *p, int e)
+void
+js_fmtexp(char *p, int e)
 {
 	char se[9];
 	int i;
@@ -366,7 +367,8 @@ static const int powers_ten_e[] = {
 	1046, 1049, 1053, 1056, 1059, 1063, 1066, 1069, 1073, 1076
 };
 
-static diy_fp_t cached_power(int k)
+static diy_fp_t
+cached_power(int k)
 {
 	diy_fp_t res;
 	int index = 343 + k;
@@ -375,11 +377,13 @@ static diy_fp_t cached_power(int k)
 	return res;
 }
 
-static int k_comp(int e, int alpha, int gamma) {
+static int
+k_comp(int e, int alpha, int gamma) {
 	return ceil((alpha-e+63) * D_1_LOG2_10);
 }
 
-static diy_fp_t minus(diy_fp_t x, diy_fp_t y)
+static diy_fp_t
+minus(diy_fp_t x, diy_fp_t y)
 {
 	diy_fp_t r;
 	assert(x.e == y.e);
@@ -389,7 +393,8 @@ static diy_fp_t minus(diy_fp_t x, diy_fp_t y)
 	return r;
 }
 
-static diy_fp_t multiply(diy_fp_t x, diy_fp_t y)
+static diy_fp_t
+multiply(diy_fp_t x, diy_fp_t y)
 {
 	uint64_t a,b,c,d,ac,bc,ad,bd,tmp;
 	diy_fp_t r;
@@ -404,7 +409,8 @@ static diy_fp_t multiply(diy_fp_t x, diy_fp_t y)
 	return r;
 }
 
-static uint64_t double_to_uint64(double d)
+static uint64_t
+double_to_uint64(double d)
 {
 	uint64_t n;
 	memcpy(&n, &d, 8);
@@ -418,7 +424,8 @@ static uint64_t double_to_uint64(double d)
 #define DP_SIGNIFICAND_MASK 0x000FFFFFFFFFFFFF
 #define DP_HIDDEN_BIT 0x0010000000000000
 
-static diy_fp_t double2diy_fp(double d)
+static diy_fp_t
+double2diy_fp(double d)
 {
 	uint64_t d64 = double_to_uint64(d);
 	int biased_e = (d64 & DP_EXPONENT_MASK) >> DP_SIGNIFICAND_SIZE;
@@ -434,7 +441,8 @@ static diy_fp_t double2diy_fp(double d)
 	return res;
 }
 
-static diy_fp_t normalize_boundary(diy_fp_t in)
+static diy_fp_t
+normalize_boundary(diy_fp_t in)
 {
 	diy_fp_t res = in;
 	/* Normalize now */
@@ -449,7 +457,8 @@ static diy_fp_t normalize_boundary(diy_fp_t in)
 	return res;
 }
 
-static void normalized_boundaries(double d, diy_fp_t* out_m_minus, diy_fp_t* out_m_plus)
+static void
+normalized_boundaries(double d, diy_fp_t* out_m_minus, diy_fp_t* out_m_plus)
 {
 	diy_fp_t v = double2diy_fp(d);
 	diy_fp_t pl, mi;
@@ -470,7 +479,8 @@ static void normalized_boundaries(double d, diy_fp_t* out_m_minus, diy_fp_t* out
 }
 
 #define TEN2 100
-static void digit_gen(diy_fp_t Mp, diy_fp_t delta, char* buffer, int* len, int* K)
+static void
+digit_gen(diy_fp_t Mp, diy_fp_t delta, char* buffer, int* len, int* K)
 {
 	uint32_t div, p1;
 	uint64_t p2;
@@ -497,7 +507,8 @@ static void digit_gen(diy_fp_t Mp, diy_fp_t delta, char* buffer, int* len, int* 
 	*K += kappa;
 }
 
-int js_grisu2(double v, char *buffer, int *K)
+int
+js_grisu2(double v, char *buffer, int *K)
 {
 	int length, mk;
 	diy_fp_t w_m, w_p, c_mk, Wp, Wm, delta;
@@ -557,7 +568,8 @@ static double powersOf10[] = {
  * The "E" may actually be an "e". E and X may both be omitted (but not just
  * one).
  */
-double js_strtod(const char *string, char **endPtr)
+double
+js_strtod(const char *string, char **endPtr)
 {
 	int sign, expSign = FALSE;
 	double fraction, dblExp, *d;

@@ -1,32 +1,38 @@
 #include "jsi.h"
 #include "utf.h"
 
-int js_isnumberobject(js_State *J, int idx)
+int
+js_isnumberobject(js_State *J, int idx)
 {
 	return js_isobject(J, idx) && js_toobject(J, idx)->type == JS_CNUMBER;
 }
 
-int js_isstringobject(js_State *J, int idx)
+int
+js_isstringobject(js_State *J, int idx)
 {
 	return js_isobject(J, idx) && js_toobject(J, idx)->type == JS_CSTRING;
 }
 
-int js_isbooleanobject(js_State *J, int idx)
+int
+js_isbooleanobject(js_State *J, int idx)
 {
 	return js_isobject(J, idx) && js_toobject(J, idx)->type == JS_CBOOLEAN;
 }
 
-int js_isdateobject(js_State *J, int idx)
+int
+js_isdateobject(js_State *J, int idx)
 {
 	return js_isobject(J, idx) && js_toobject(J, idx)->type == JS_CDATE;
 }
 
-static void jsonnext(js_State *J)
+static void
+jsonnext(js_State *J)
 {
 	J->lookahead = jsY_lexjson(J);
 }
 
-static int jsonaccept(js_State *J, int t)
+static int
+jsonaccept(js_State *J, int t)
 {
 	if (J->lookahead == t) {
 		jsonnext(J);
@@ -35,14 +41,16 @@ static int jsonaccept(js_State *J, int t)
 	return 0;
 }
 
-static void jsonexpect(js_State *J, int t)
+static void
+jsonexpect(js_State *J, int t)
 {
 	if (!jsonaccept(J, t))
 		js_syntaxerror(J, "JSON: unexpected token: %s (expected %s)",
 				jsY_tokenstring(J->lookahead), jsY_tokenstring(t));
 }
 
-static void jsonvalue(js_State *J)
+static void
+jsonvalue(js_State *J)
 {
 	int i;
 	const char *name;
@@ -108,7 +116,8 @@ static void jsonvalue(js_State *J)
 	}
 }
 
-static void jsonrevive(js_State *J, const char *name)
+static void
+jsonrevive(js_State *J, const char *name)
 {
 	const char *key;
 	char buf[32];
@@ -156,7 +165,8 @@ static void jsonrevive(js_State *J, const char *name)
 	js_rot2pop1(J); /* pop old value, leave new value on stack */
 }
 
-static void JSON_parse(js_State *J)
+static void
+JSON_parse(js_State *J)
 {
 	const char *source = js_tostring(J, 1);
 	jsY_initlex(J, "JSON", source);
@@ -172,7 +182,8 @@ static void JSON_parse(js_State *J)
 	}
 }
 
-static void fmtnum(js_State *J, js_Buffer **sb, double n)
+static void
+fmtnum(js_State *J, js_Buffer **sb, double n)
 {
 	if (isnan(n)) js_puts(J, sb, "null");
 	else if (isinf(n)) js_puts(J, sb, "null");
@@ -183,7 +194,8 @@ static void fmtnum(js_State *J, js_Buffer **sb, double n)
 	}
 }
 
-static void fmtstr(js_State *J, js_Buffer **sb, const char *s)
+static void
+fmtstr(js_State *J, js_Buffer **sb, const char *s)
 {
 	static const char *HEX = "0123456789abcdef";
 	int i, n;
@@ -220,7 +232,8 @@ static void fmtstr(js_State *J, js_Buffer **sb, const char *s)
 	js_putc(J, sb, '"');
 }
 
-static void fmtindent(js_State *J, js_Buffer **sb, const char *gap, int level)
+static void
+fmtindent(js_State *J, js_Buffer **sb, const char *gap, int level)
 {
 	js_putc(J, sb, '\n');
 	while (level--)
@@ -229,7 +242,8 @@ static void fmtindent(js_State *J, js_Buffer **sb, const char *gap, int level)
 
 static int fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *gap, int level);
 
-static int filterprop(js_State *J, const char *key)
+static int
+filterprop(js_State *J, const char *key)
 {
 	int i, n, found;
 	/* replacer/property-list is in stack slot 2 */
@@ -248,7 +262,8 @@ static int filterprop(js_State *J, const char *key)
 	return 1;
 }
 
-static void fmtobject(js_State *J, js_Buffer **sb, js_Object *obj, const char *gap, int level)
+static void
+fmtobject(js_State *J, js_Buffer **sb, js_Object *obj, const char *gap, int level)
 {
 	const char *key;
 	int save;
@@ -285,7 +300,8 @@ static void fmtobject(js_State *J, js_Buffer **sb, js_Object *obj, const char *g
 	js_putc(J, sb, '}');
 }
 
-static void fmtarray(js_State *J, js_Buffer **sb, const char *gap, int level)
+static void
+fmtarray(js_State *J, js_Buffer **sb, const char *gap, int level)
 {
 	int n, i;
 	char buf[32];
@@ -308,7 +324,8 @@ static void fmtarray(js_State *J, js_Buffer **sb, const char *gap, int level)
 	js_putc(J, sb, ']');
 }
 
-static int fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *gap, int level)
+static int
+fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *gap, int level)
 {
 	/* replacer/property-list is in 2 */
 	/* holder is in -1 */
@@ -364,7 +381,8 @@ static int fmtvalue(js_State *J, js_Buffer **sb, const char *key, const char *ga
 	return 1;
 }
 
-static void JSON_stringify(js_State *J)
+static void
+JSON_stringify(js_State *J)
 {
 	js_Buffer *sb = NULL;
 	char buf[12];
@@ -411,7 +429,8 @@ static void JSON_stringify(js_State *J)
 	js_free(J, sb);
 }
 
-void jsB_initjson(js_State *J)
+void
+jsB_initjson(js_State *J)
 {
 	js_pushobject(J, jsV_newobject(J, JS_CJSON, J->Object_prototype));
 	{

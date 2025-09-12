@@ -1,9 +1,10 @@
 #include "jsi.h"
 #include "utf.h"
 
-static void reprvalue(js_State *J, js_Buffer **sb);
+static void	reprvalue(js_State *J, js_Buffer **sb);
 
-static void reprnum(js_State *J, js_Buffer **sb, double n)
+static void
+reprnum(js_State *J, js_Buffer **sb, double n)
 {
 	char buf[40];
 	if (n == 0 && signbit(n))
@@ -12,7 +13,8 @@ static void reprnum(js_State *J, js_Buffer **sb, double n)
 		js_puts(J, sb, jsV_numbertostring(J, buf, n));
 }
 
-static void reprstr(js_State *J, js_Buffer **sb, const char *s)
+static void
+reprstr(js_State *J, js_Buffer **sb, const char *s)
 {
 	static const char *HEX = "0123456789ABCDEF";
 	int i, n;
@@ -55,13 +57,14 @@ static void reprstr(js_State *J, js_Buffer **sb, const char *s)
 }
 
 #ifndef isalpha
-#define isalpha(c) ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+#define isalpha(c)	((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 #endif
 #ifndef isdigit
-#define isdigit(c) (c >= '0' && c <= '9')
+#define isdigit(c)	(c >= '0' && c <= '9')
 #endif
 
-static void reprident(js_State *J, js_Buffer **sb, const char *name)
+static void
+reprident(js_State *J, js_Buffer **sb, const char *name)
 {
 	const char *p = name;
 	if (isdigit(*p))
@@ -76,7 +79,8 @@ static void reprident(js_State *J, js_Buffer **sb, const char *name)
 		reprstr(J, sb, name);
 }
 
-static void reprobject(js_State *J, js_Buffer **sb)
+static void
+reprobject(js_State *J, js_Buffer **sb)
 {
 	const char *key;
 	int i, n;
@@ -107,7 +111,8 @@ static void reprobject(js_State *J, js_Buffer **sb)
 	js_putc(J, sb, '}');
 }
 
-static void reprarray(js_State *J, js_Buffer **sb)
+static void
+reprarray(js_State *J, js_Buffer **sb)
 {
 	int n, i;
 
@@ -134,7 +139,8 @@ static void reprarray(js_State *J, js_Buffer **sb)
 	js_putc(J, sb, ']');
 }
 
-static void reprfun(js_State *J, js_Buffer **sb, js_Function *fun)
+static void
+reprfun(js_State *J, js_Buffer **sb, js_Function *fun)
 {
 	int i;
 	js_puts(J, sb, "function ");
@@ -148,7 +154,8 @@ static void reprfun(js_State *J, js_Buffer **sb, js_Function *fun)
 	js_puts(J, sb, ") { [byte code] }");
 }
 
-static void reprvalue(js_State *J, js_Buffer **sb)
+static void
+reprvalue(js_State *J, js_Buffer **sb)
 {
 	if (js_isundefined(J, -1))
 		js_puts(J, sb, "undefined");
@@ -239,7 +246,8 @@ static void reprvalue(js_State *J, js_Buffer **sb)
 	}
 }
 
-void js_repr(js_State *J, int idx)
+void
+js_repr(js_State *J, int idx)
 {
 	js_Buffer *sb = NULL;
 	int savebot;
@@ -265,14 +273,16 @@ void js_repr(js_State *J, int idx)
 	js_free(J, sb);
 }
 
-const char *js_torepr(js_State *J, int idx)
+const char*
+js_torepr(js_State *J, int idx)
 {
 	js_repr(J, idx);
 	js_replace(J, idx < 0 ? idx-1 : idx);
 	return js_tostring(J, idx);
 }
 
-const char *js_tryrepr(js_State *J, int idx, const char *error)
+const char*
+js_tryrepr(js_State *J, int idx, const char *error)
 {
 	const char *s;
 	if (js_try(J)) {

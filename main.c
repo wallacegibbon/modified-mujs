@@ -12,7 +12,9 @@
 
 static char *xoptarg; /* Global argument pointer. */
 static int xoptind = 0; /* Global argv index. */
-static int xgetopt(int argc, char *argv[], char *optstring)
+
+static int
+xgetopt(int argc, char *argv[], char *optstring)
 {
 	static char *scan = NULL; /* Private scan pointer. */
 
@@ -65,11 +67,24 @@ static int xgetopt(int argc, char *argv[], char *optstring)
 #include <readline/readline.h>
 #include <readline/history.h>
 #else
-void using_history(void) { }
-void add_history(const char *string) { }
-void rl_bind_key(int key, void (*fun)(void)) { }
-void rl_insert(void) { }
-char *readline(const char *prompt)
+void
+using_history(void)
+{}
+
+void
+add_history(const char *string)
+{}
+
+void
+rl_bind_key(int key, void (*fun)(void))
+{}
+
+void
+rl_insert(void)
+{}
+
+char*
+readline(const char *prompt)
 {
 	static char line[500], *p;
 	int n;
@@ -89,14 +104,16 @@ char *readline(const char *prompt)
 
 #define PS1 "> "
 
-static void jsB_gc(js_State *J)
+static void
+jsB_gc(js_State *J)
 {
 	int report = js_toboolean(J, 1);
 	js_gc(J, report);
 	js_pushundefined(J);
 }
 
-static void jsB_load(js_State *J)
+static void
+jsB_load(js_State *J)
 {
 	int i, n = js_gettop(J);
 	for (i = 1; i < n; ++i) {
@@ -108,14 +125,16 @@ static void jsB_load(js_State *J)
 	js_pushundefined(J);
 }
 
-static void jsB_compile(js_State *J)
+static void
+jsB_compile(js_State *J)
 {
 	const char *source = js_tostring(J, 1);
 	const char *filename = js_isdefined(J, 2) ? js_tostring(J, 2) : "[string]";
 	js_loadstring(J, filename, source);
 }
 
-static void jsB_print(js_State *J)
+static void
+jsB_print(js_State *J)
 {
 	int i, top = js_gettop(J);
 	for (i = 1; i < top; ++i) {
@@ -127,7 +146,8 @@ static void jsB_print(js_State *J)
 	js_pushundefined(J);
 }
 
-static void jsB_write(js_State *J)
+static void
+jsB_write(js_State *J)
 {
 	int i, top = js_gettop(J);
 	for (i = 1; i < top; ++i) {
@@ -138,7 +158,8 @@ static void jsB_write(js_State *J)
 	js_pushundefined(J);
 }
 
-static void jsB_read(js_State *J)
+static void
+jsB_read(js_State *J)
 {
 	const char *filename = js_tostring(J, 1);
 	FILE *f;
@@ -185,7 +206,8 @@ static void jsB_read(js_State *J)
 	fclose(f);
 }
 
-static void jsB_readline(js_State *J)
+static void
+jsB_readline(js_State *J)
 {
 	char *line = readline("");
 	if (!line) {
@@ -198,12 +220,14 @@ static void jsB_readline(js_State *J)
 	free(line);
 }
 
-static void jsB_quit(js_State *J)
+static void
+jsB_quit(js_State *J)
 {
 	exit(js_tonumber(J, 1));
 }
 
-static void jsB_repr(js_State *J)
+static void
+jsB_repr(js_State *J)
 {
 	js_repr(J, 1);
 }
@@ -234,7 +258,8 @@ static const char *console_js =
 	"var console = { log: print, debug: print, warn: print, error: print };"
 ;
 
-static int eval_print(js_State *J, const char *source)
+static int
+eval_print(js_State *J, const char *source)
 {
 	if (js_ploadstring(J, "[stdin]", source)) {
 		fprintf(stderr, "%s\n", js_trystring(J, -1, "Error"));
@@ -254,7 +279,8 @@ static int eval_print(js_State *J, const char *source)
 	return 0;
 }
 
-static char *read_stdin(void)
+static char*
+read_stdin(void)
 {
 	int n = 0;
 	int t = 512;
@@ -284,7 +310,8 @@ static char *read_stdin(void)
 	return s;
 }
 
-static void usage(void)
+static void
+usage(void)
 {
 	fprintf(stderr, "Usage: mujs [options] [script [scriptArgs*]]\n");
 	fprintf(stderr, "\t-i: Enter interactive prompt after running code.\n");
@@ -292,7 +319,8 @@ static void usage(void)
 	exit(1);
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	char *input;
 	js_State *J;

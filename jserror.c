@@ -3,7 +3,8 @@
 #define QQ(X) #X
 #define Q(X) QQ(X)
 
-static int jsB_stacktrace(js_State *J, int skip)
+static int
+jsB_stacktrace(js_State *J, int skip)
 {
 	char buf[256];
 	int n = J->tracetop - skip;
@@ -27,7 +28,8 @@ static int jsB_stacktrace(js_State *J, int skip)
 	return 1;
 }
 
-static void Ep_toString(js_State *J)
+static void
+Ep_toString(js_State *J)
 {
 	const char *name = "Error";
 	const char *message = "";
@@ -53,7 +55,8 @@ static void Ep_toString(js_State *J)
 	}
 }
 
-static int jsB_ErrorX(js_State *J, js_Object *prototype)
+static int
+jsB_ErrorX(js_State *J, js_Object *prototype)
 {
 	js_pushobject(J, jsV_newobject(J, JS_CERROR, prototype));
 	if (js_isdefined(J, 1)) {
@@ -65,7 +68,8 @@ static int jsB_ErrorX(js_State *J, js_Object *prototype)
 	return 1;
 }
 
-static void js_newerrorx(js_State *J, const char *message, js_Object *prototype)
+static void
+js_newerrorx(js_State *J, const char *message, js_Object *prototype)
 {
 	js_pushobject(J, jsV_newobject(J, JS_CERROR, prototype));
 	js_pushstring(J, message);
@@ -101,7 +105,8 @@ DERROR(urierror, URIError)
 
 #undef DERROR
 
-void jsB_initerror(js_State *J)
+void
+jsB_initerror(js_State *J)
 {
 	js_pushobject(J, J->Error_prototype);
 	{

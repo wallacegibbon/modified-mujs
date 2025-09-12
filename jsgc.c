@@ -1,12 +1,14 @@
 #include "jsi.h"
 #include "regexp.h"
 
-static void jsG_freeenvironment(js_State *J, js_Environment *env)
+static void
+jsG_freeenvironment(js_State *J, js_Environment *env)
 {
 	js_free(J, env);
 }
 
-static void jsG_freefunction(js_State *J, js_Function *fun)
+static void
+jsG_freefunction(js_State *J, js_Function *fun)
 {
 	js_free(J, fun->funtab);
 	js_free(J, fun->vartab);
@@ -14,14 +16,16 @@ static void jsG_freefunction(js_State *J, js_Function *fun)
 	js_free(J, fun);
 }
 
-static void jsG_freeproperty(js_State *J, js_Property *node)
+static void
+jsG_freeproperty(js_State *J, js_Property *node)
 {
 	if (node->left->level) jsG_freeproperty(J, node->left);
 	if (node->right->level) jsG_freeproperty(J, node->right);
 	js_free(J, node);
 }
 
-static void jsG_freeiterator(js_State *J, js_Iterator *node)
+static void
+jsG_freeiterator(js_State *J, js_Iterator *node)
 {
 	while (node) {
 		js_Iterator *next = node->next;
@@ -30,7 +34,8 @@ static void jsG_freeiterator(js_State *J, js_Iterator *node)
 	}
 }
 
-static void jsG_freeobject(js_State *J, js_Object *obj)
+static void
+jsG_freeobject(js_State *J, js_Object *obj)
 {
 	if (obj->properties->level)
 		jsG_freeproperty(J, obj->properties);
@@ -54,14 +59,16 @@ static void jsG_freeobject(js_State *J, js_Object *obj)
 }
 
 /* Mark and add object to scan queue */
-static void jsG_markobject(js_State *J, int mark, js_Object *obj)
+static void
+jsG_markobject(js_State *J, int mark, js_Object *obj)
 {
 	obj->gcmark = mark;
 	obj->gcroot = J->gcroot;
 	J->gcroot = obj;
 }
 
-static void jsG_markfunction(js_State *J, int mark, js_Function *fun)
+static void
+jsG_markfunction(js_State *J, int mark, js_Function *fun)
 {
 	int i;
 	fun->gcmark = mark;
@@ -70,7 +77,8 @@ static void jsG_markfunction(js_State *J, int mark, js_Function *fun)
 			jsG_markfunction(J, mark, fun->funtab[i]);
 }
 
-static void jsG_markenvironment(js_State *J, int mark, js_Environment *env)
+static void
+jsG_markenvironment(js_State *J, int mark, js_Environment *env)
 {
 	do {
 		env->gcmark = mark;
@@ -80,7 +88,8 @@ static void jsG_markenvironment(js_State *J, int mark, js_Environment *env)
 	} while (env && env->gcmark != mark);
 }
 
-static void jsG_markproperty(js_State *J, int mark, js_Property *node)
+static void
+jsG_markproperty(js_State *J, int mark, js_Property *node)
 {
 	if (node->left->level) jsG_markproperty(J, mark, node->left);
 	if (node->right->level) jsG_markproperty(J, mark, node->right);
@@ -96,7 +105,8 @@ static void jsG_markproperty(js_State *J, int mark, js_Property *node)
 }
 
 /* Mark everything the object can reach. */
-static void jsG_scanobject(js_State *J, int mark, js_Object *obj)
+static void
+jsG_scanobject(js_State *J, int mark, js_Object *obj)
 {
 	if (obj->properties->level)
 		jsG_markproperty(J, mark, obj->properties);
@@ -123,7 +133,8 @@ static void jsG_scanobject(js_State *J, int mark, js_Object *obj)
 	}
 }
 
-static void jsG_markstack(js_State *J, int mark)
+static void
+jsG_markstack(js_State *J, int mark)
 {
 	js_Value *v = J->stack;
 	int n = J->top;
@@ -136,7 +147,8 @@ static void jsG_markstack(js_State *J, int mark)
 	}
 }
 
-void js_gc(js_State *J, int report)
+void
+js_gc(js_State *J, int report)
 {
 	js_Function *fun, *nextfun, **prevnextfun;
 	js_Object *obj, *nextobj, **prevnextobj;
@@ -257,7 +269,8 @@ void js_gc(js_State *J, int report)
 	}
 }
 
-void js_freestate(js_State *J)
+void
+js_freestate(js_State *J)
 {
 	js_Function *fun, *nextfun;
 	js_Object *obj, *nextobj;

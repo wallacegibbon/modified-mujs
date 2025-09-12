@@ -1,13 +1,15 @@
 #include "jsi.h"
 #include "regexp.h"
 
-static void jsB_globalf(js_State *J, const char *name, js_CFunction cfun, int n)
+static void
+jsB_globalf(js_State *J, const char *name, js_CFunction cfun, int n)
 {
 	js_newcfunction(J, cfun, name, n);
 	js_defglobal(J, name, JS_DONTENUM);
 }
 
-void jsB_propf(js_State *J, const char *name, js_CFunction cfun, int n)
+void
+jsB_propf(js_State *J, const char *name, js_CFunction cfun, int n)
 {
 	const char *pname = strrchr(name, '.');
 	pname = pname ? pname + 1 : name;
@@ -15,19 +17,22 @@ void jsB_propf(js_State *J, const char *name, js_CFunction cfun, int n)
 	js_defproperty(J, -2, pname, JS_DONTENUM);
 }
 
-void jsB_propn(js_State *J, const char *name, double number)
+void
+jsB_propn(js_State *J, const char *name, double number)
 {
 	js_pushnumber(J, number);
 	js_defproperty(J, -2, name, JS_READONLY | JS_DONTENUM | JS_DONTCONF);
 }
 
-void jsB_props(js_State *J, const char *name, const char *string)
+void
+jsB_props(js_State *J, const char *name, const char *string)
 {
 	js_pushliteral(J, string);
 	js_defproperty(J, -2, name, JS_DONTENUM);
 }
 
-static void jsB_parseInt(js_State *J)
+static void
+jsB_parseInt(js_State *J)
 {
 	const char *s = js_tostring(J, 1);
 	int radix = js_isdefined(J, 2) ? js_tointeger(J, 2) : 0;
@@ -60,7 +65,8 @@ static void jsB_parseInt(js_State *J)
 		js_pushnumber(J, n * sign);
 }
 
-static void jsB_parseFloat(js_State *J)
+static void
+jsB_parseFloat(js_State *J)
 {
 	const char *s = js_tostring(J, 1);
 	char *e;
@@ -82,19 +88,22 @@ static void jsB_parseFloat(js_State *J)
 	}
 }
 
-static void jsB_isNaN(js_State *J)
+static void
+jsB_isNaN(js_State *J)
 {
 	double n = js_tonumber(J, 1);
 	js_pushboolean(J, isnan(n));
 }
 
-static void jsB_isFinite(js_State *J)
+static void
+jsB_isFinite(js_State *J)
 {
 	double n = js_tonumber(J, 1);
 	js_pushboolean(J, isfinite(n));
 }
 
-static void Encode(js_State *J, const char *str_, const char *unescaped)
+static void
+Encode(js_State *J, const char *str_, const char *unescaped)
 {
 	/* NOTE: volatile to silence GCC warning about longjmp clobbering a variable */
 	const char * volatile str = str_;
@@ -124,7 +133,8 @@ static void Encode(js_State *J, const char *str_, const char *unescaped)
 	js_free(J, sb);
 }
 
-static void Decode(js_State *J, const char *str_, const char *reserved)
+static void
+Decode(js_State *J, const char *str_, const char *reserved)
 {
 	/* NOTE: volatile to silence GCC warning about longjmp clobbering a variable */
 	const char * volatile str = str_;
@@ -170,27 +180,32 @@ static void Decode(js_State *J, const char *str_, const char *reserved)
 #define URIMARK "-_.!~*'()"
 #define URIUNESCAPED URIALPHA URIDIGIT URIMARK
 
-static void jsB_decodeURI(js_State *J)
+static void
+jsB_decodeURI(js_State *J)
 {
 	Decode(J, js_tostring(J, 1), URIRESERVED "#");
 }
 
-static void jsB_decodeURIComponent(js_State *J)
+static void
+jsB_decodeURIComponent(js_State *J)
 {
 	Decode(J, js_tostring(J, 1), "");
 }
 
-static void jsB_encodeURI(js_State *J)
+static void
+jsB_encodeURI(js_State *J)
 {
 	Encode(J, js_tostring(J, 1), URIUNESCAPED URIRESERVED "#");
 }
 
-static void jsB_encodeURIComponent(js_State *J)
+static void
+jsB_encodeURIComponent(js_State *J)
 {
 	Encode(J, js_tostring(J, 1), URIUNESCAPED);
 }
 
-void jsB_init(js_State *J)
+void
+jsB_init(js_State *J)
 {
 	/* Create the prototype objects here, before the constructors */
 	J->Object_prototype = jsV_newobject(J, JS_COBJECT, NULL);

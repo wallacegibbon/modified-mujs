@@ -3,7 +3,8 @@
 
 JS_NORETURN static void jsY_error(js_State *J, const char *fmt, ...) JS_PRINTFLIKE(2,3);
 
-static void jsY_error(js_State *J, const char *fmt, ...)
+static void
+jsY_error(js_State *J, const char *fmt, ...)
 {
 	va_list ap;
 	char buf[512];
@@ -63,7 +64,8 @@ static const char *tokenstring[] = {
 	"'void'", "'while'", "'with'",
 };
 
-const char *jsY_tokenstring(int token)
+const char*
+jsY_tokenstring(int token)
 {
 	if (token >= 0 && token < (int)nelem(tokenstring))
 		if (tokenstring[token])
@@ -78,7 +80,8 @@ static const char *keywords[] = {
 	"true", "try", "typeof", "var", "void", "while", "with",
 };
 
-int jsY_findword(const char *s, const char **list, int num)
+int
+jsY_findword(const char *s, const char **list, int num)
 {
 	int l = 0;
 	int r = num - 1;
@@ -95,7 +98,8 @@ int jsY_findword(const char *s, const char **list, int num)
 	return -1;
 }
 
-static int jsY_findkeyword(js_State *J, const char *s)
+static int
+jsY_findkeyword(js_State *J, const char *s)
 {
 	int i = jsY_findword(s, keywords, nelem(keywords));
 	if (i >= 0) {
@@ -106,12 +110,14 @@ static int jsY_findkeyword(js_State *J, const char *s)
 	return TK_IDENTIFIER;
 }
 
-int jsY_iswhite(int c)
+int
+jsY_iswhite(int c)
 {
 	return c == 0x9 || c == 0xB || c == 0xC || c == 0x20 || c == 0xA0 || c == 0xFEFF;
 }
 
-int jsY_isnewline(int c)
+int
+jsY_isnewline(int c)
 {
 	return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
 }
@@ -126,27 +132,32 @@ int jsY_isnewline(int c)
 #define ishex(c) ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
 #endif
 
-static int jsY_isidentifierstart(int c)
+static int
+jsY_isidentifierstart(int c)
 {
 	return isalpha(c) || c == '$' || c == '_' || isalpharune(c);
 }
 
-static int jsY_isidentifierpart(int c)
+static int
+jsY_isidentifierpart(int c)
 {
 	return isdigit(c) || isalpha(c) || c == '$' || c == '_' || isalpharune(c);
 }
 
-static int jsY_isdec(int c)
+static int
+jsY_isdec(int c)
 {
 	return isdigit(c);
 }
 
-int jsY_ishex(int c)
+int
+jsY_ishex(int c)
 {
 	return isdigit(c) || ishex(c);
 }
 
-int jsY_tohex(int c)
+int
+jsY_tohex(int c)
 {
 	if (c >= '0' && c <= '9') return c - '0';
 	if (c >= 'a' && c <= 'f') return c - 'a' + 0xA;
@@ -154,7 +165,8 @@ int jsY_tohex(int c)
 	return 0;
 }
 
-static void jsY_next(js_State *J)
+static void
+jsY_next(js_State *J)
 {
 	Rune c;
 	if (*J->source == 0) {
@@ -176,7 +188,8 @@ static void jsY_next(js_State *J)
 
 #define jsY_expect(J, x) if (!jsY_accept(J, x)) jsY_error(J, "expected '%c'", x)
 
-static void jsY_unescape(js_State *J)
+static void
+jsY_unescape(js_State *J)
 {
 	if (jsY_accept(J, '\\')) {
 		if (jsY_accept(J, 'u')) {
@@ -193,7 +206,8 @@ error:
 	}
 }
 
-static void textinit(js_State *J)
+static void
+textinit(js_State *J)
 {
 	if (!J->lexbuf.text) {
 		J->lexbuf.cap = 4096;
@@ -202,7 +216,8 @@ static void textinit(js_State *J)
 	J->lexbuf.len = 0;
 }
 
-static void textpush(js_State *J, Rune c)
+static void
+textpush(js_State *J, Rune c)
 {
 	int n;
 	if (c == EOF)
@@ -219,19 +234,22 @@ static void textpush(js_State *J, Rune c)
 		J->lexbuf.len += runetochar(J->lexbuf.text + J->lexbuf.len, &c);
 }
 
-static char *textend(js_State *J)
+static char*
+textend(js_State *J)
 {
 	textpush(J, EOF);
 	return J->lexbuf.text;
 }
 
-static void lexlinecomment(js_State *J)
+static void
+lexlinecomment(js_State *J)
 {
 	while (J->lexchar != EOF && J->lexchar != '\n')
 		jsY_next(J);
 }
 
-static int lexcomment(js_State *J)
+static int
+lexcomment(js_State *J)
 {
 	/* already consumed initial '/' '*' sequence */
 	while (J->lexchar != EOF) {
@@ -247,7 +265,8 @@ static int lexcomment(js_State *J)
 	return -1;
 }
 
-static double lexhex(js_State *J)
+static double
+lexhex(js_State *J)
 {
 	double n = 0;
 	if (!jsY_ishex(J->lexchar))
@@ -261,7 +280,8 @@ static double lexhex(js_State *J)
 
 #if 0
 
-static double lexinteger(js_State *J)
+static double
+lexinteger(js_State *J)
 {
 	double n = 0;
 	if (!jsY_isdec(J->lexchar))
@@ -273,7 +293,8 @@ static double lexinteger(js_State *J)
 	return n;
 }
 
-static double lexfraction(js_State *J)
+static double
+lexfraction(js_State *J)
 {
 	double n = 0;
 	double d = 1;
@@ -285,7 +306,8 @@ static double lexfraction(js_State *J)
 	return n / d;
 }
 
-static double lexexponent(js_State *J)
+static double
+lexexponent(js_State *J)
 {
 	double sign;
 	if (jsY_accept(J, 'e') || jsY_accept(J, 'E')) {
@@ -297,7 +319,8 @@ static double lexexponent(js_State *J)
 	return 0;
 }
 
-static int lexnumber(js_State *J)
+static int
+lexnumber(js_State *J)
 {
 	double n;
 	double e;
@@ -337,7 +360,8 @@ static int lexnumber(js_State *J)
 
 #else
 
-static int lexnumber(js_State *J)
+static int
+lexnumber(js_State *J)
 {
 	const char *s = J->source - 1;
 
@@ -385,7 +409,8 @@ static int lexnumber(js_State *J)
 
 #endif
 
-static int lexescape(js_State *J)
+static int
+lexescape(js_State *J)
 {
 	int x = 0;
 
@@ -425,7 +450,8 @@ static int lexescape(js_State *J)
 	return 0;
 }
 
-static int lexstring(js_State *J)
+static int
+lexstring(js_State *J)
 {
 	const char *s;
 
@@ -454,7 +480,8 @@ static int lexstring(js_State *J)
 }
 
 /* the ugliest language wart ever... */
-static int isregexpcontext(int last)
+static int
+isregexpcontext(int last)
 {
 	switch (last) {
 	case ']':
@@ -473,7 +500,8 @@ static int isregexpcontext(int last)
 	}
 }
 
-static int lexregexp(js_State *J)
+static int
+lexregexp(js_State *J)
 {
 	const char *s;
 	int g, m, i;
@@ -532,7 +560,8 @@ static int lexregexp(js_State *J)
 }
 
 /* simple "return [no Line Terminator here] ..." contexts */
-static int isnlthcontext(int last)
+static int
+isnlthcontext(int last)
 {
 	switch (last) {
 	case TK_BREAK:
@@ -545,7 +574,8 @@ static int isnlthcontext(int last)
 	}
 }
 
-static int jsY_lexx(js_State *J)
+static int
+jsY_lexx(js_State *J)
 {
 	J->newline = 0;
 
@@ -727,7 +757,8 @@ static int jsY_lexx(js_State *J)
 	}
 }
 
-void jsY_initlex(js_State *J, const char *filename, const char *source)
+void
+jsY_initlex(js_State *J, const char *filename, const char *source)
 {
 	J->filename = filename;
 	J->source = source;
@@ -736,12 +767,14 @@ void jsY_initlex(js_State *J, const char *filename, const char *source)
 	jsY_next(J); /* load first lookahead character */
 }
 
-int jsY_lex(js_State *J)
+int
+jsY_lex(js_State *J)
 {
 	return J->lasttoken = jsY_lexx(J);
 }
 
-static int lexjsonnumber(js_State *J)
+static int
+lexjsonnumber(js_State *J)
 {
 	const char *s = J->source - 1;
 
@@ -778,7 +811,8 @@ static int lexjsonnumber(js_State *J)
 	return TK_NUMBER;
 }
 
-static int lexjsonescape(js_State *J)
+static int
+lexjsonescape(js_State *J)
 {
 	int x = 0;
 
@@ -806,7 +840,8 @@ static int lexjsonescape(js_State *J)
 	return 0;
 }
 
-static int lexjsonstring(js_State *J)
+static int
+lexjsonstring(js_State *J)
 {
 	const char *s;
 
@@ -832,7 +867,8 @@ static int lexjsonstring(js_State *J)
 	return TK_STRING;
 }
 
-int jsY_lexjson(js_State *J)
+int
+jsY_lexjson(js_State *J)
 {
 	while (1) {
 		J->lexline = J->line; /* save location of beginning of token */

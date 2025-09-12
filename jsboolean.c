@@ -1,30 +1,35 @@
 #include "jsi.h"
 
-static void jsB_new_Boolean(js_State *J)
+static void
+jsB_new_Boolean(js_State *J)
 {
 	js_newboolean(J, js_toboolean(J, 1));
 }
 
-static void jsB_Boolean(js_State *J)
+static void
+jsB_Boolean(js_State *J)
 {
 	js_pushboolean(J, js_toboolean(J, 1));
 }
 
-static void Bp_toString(js_State *J)
+static void
+Bp_toString(js_State *J)
 {
 	js_Object *self = js_toobject(J, 0);
 	if (self->type != JS_CBOOLEAN) js_typeerror(J, "not a boolean");
 	js_pushliteral(J, self->u.boolean ? "true" : "false");
 }
 
-static void Bp_valueOf(js_State *J)
+static void
+Bp_valueOf(js_State *J)
 {
 	js_Object *self = js_toobject(J, 0);
 	if (self->type != JS_CBOOLEAN) js_typeerror(J, "not a boolean");
 	js_pushboolean(J, self->u.boolean);
 }
 
-void jsB_initboolean(js_State *J)
+void
+jsB_initboolean(js_State *J)
 {
 	J->Boolean_prototype->u.boolean = 0;
 

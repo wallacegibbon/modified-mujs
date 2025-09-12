@@ -1,7 +1,8 @@
 #include "jsi.h"
 #include "regexp.h"
 
-static char *escaperegexp(js_State *J, const char *pattern)
+static char*
+escaperegexp(js_State *J, const char *pattern)
 {
 	char *copy, *p;
 	const char *s;
@@ -21,7 +22,8 @@ static char *escaperegexp(js_State *J, const char *pattern)
 	return copy;
 }
 
-static void js_newregexpx(js_State *J, const char *pattern, int flags, int is_clone)
+static void
+js_newregexpx(js_State *J, const char *pattern, int flags, int is_clone)
 {
 	const char *error;
 	js_Object *obj;
@@ -45,12 +47,14 @@ static void js_newregexpx(js_State *J, const char *pattern, int flags, int is_cl
 	js_pushobject(J, obj);
 }
 
-void js_newregexp(js_State *J, const char *pattern, int flags)
+void
+js_newregexp(js_State *J, const char *pattern, int flags)
 {
 	js_newregexpx(J, pattern, flags, 0);
 }
 
-void js_RegExp_prototype_exec(js_State *J, js_Regexp *re, const char *text)
+void
+js_RegExp_prototype_exec(js_State *J, js_Regexp *re, const char *text)
 {
 	const char *haystack;
 	int result;
@@ -96,7 +100,8 @@ void js_RegExp_prototype_exec(js_State *J, js_Regexp *re, const char *text)
 	js_pushnull(J);
 }
 
-static void Rp_test(js_State *J)
+static void
+Rp_test(js_State *J)
 {
 	js_Regexp *re;
 	const char *text;
@@ -136,7 +141,8 @@ static void Rp_test(js_State *J)
 	js_pushboolean(J, 0);
 }
 
-static void jsB_new_RegExp(js_State *J)
+static void
+jsB_new_RegExp(js_State *J)
 {
 	js_Regexp *old;
 	const char *pattern;
@@ -182,14 +188,16 @@ static void jsB_new_RegExp(js_State *J)
 	js_newregexpx(J, pattern, flags, is_clone);
 }
 
-static void jsB_RegExp(js_State *J)
+static void
+jsB_RegExp(js_State *J)
 {
 	if (js_isregexp(J, 1))
 		return;
 	jsB_new_RegExp(J);
 }
 
-static void Rp_toString(js_State *J)
+static void
+Rp_toString(js_State *J)
 {
 	js_Regexp *re;
 	char * volatile out = NULL;
@@ -215,12 +223,14 @@ static void Rp_toString(js_State *J)
 	js_free(J, out);
 }
 
-static void Rp_exec(js_State *J)
+static void
+Rp_exec(js_State *J)
 {
 	js_RegExp_prototype_exec(J, js_toregexp(J, 0), js_tostring(J, 1));
 }
 
-void jsB_initregexp(js_State *J)
+void
+jsB_initregexp(js_State *J)
 {
 	js_pushobject(J, J->RegExp_prototype);
 	{
