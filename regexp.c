@@ -118,7 +118,8 @@ dec(struct cstate *g, int c)
 static int
 isunicodeletter(int c)
 {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isalpharune(c);
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+		isalpharune(c);
 }
 
 static int
@@ -155,7 +156,8 @@ nextrune(struct cstate *g)
 			}
 			return 1;
 		case 'u':
-			if (!g->source[0] || !g->source[1] || !g->source[2] || !g->source[3])
+			if (!g->source[0] || !g->source[1] || !g->source[2] ||
+					!g->source[3])
 				die(g, "unterminated escape sequence");
 			g->yychar = hex(g, *g->source++) << 12;
 			g->yychar += hex(g, *g->source++) << 8;
@@ -560,7 +562,8 @@ parseatom(struct cstate *g)
 	}
 	if (g->lookahead == L_REF) {
 		atom = newnode(g, P_REF);
-		if (g->yychar == 0 || g->yychar >= g->nsub || !g->sub[g->yychar])
+		if (g->yychar == 0 || g->yychar >= g->nsub ||
+				!g->sub[g->yychar])
 			die(g, "invalid back-reference");
 		atom->n = g->yychar;
 		atom->x = g->sub[g->yychar];
@@ -633,10 +636,13 @@ parsecat(struct cstate *g)
 {
 	Renode *cat, *head, **tail;
 	if (g->lookahead != EOF && g->lookahead != '|' && g->lookahead != ')') {
-		/* Build a right-leaning tree by splicing in new 'cat' at the tail. */
+		/*
+		Build a right-leaning tree by splicing in new 'cat' at the tail.
+		*/
 		head = parserep(g);
 		tail = &head;
-		while (g->lookahead != EOF && g->lookahead != '|' && g->lookahead != ')') {
+		while (g->lookahead != EOF && g->lookahead != '|' &&
+				g->lookahead != ')') {
 			cat = newnode(g, P_CAT);
 			cat->x = *tail;
 			cat->y = parserep(g);
@@ -687,20 +693,30 @@ count(struct cstate *g, Renode *node, int depth)
 	if (!node) return 0;
 	if (++depth > REG_MAXREC) die(g, "stack overflow");
 	switch (node->type) {
-	default: return 1;
-	case P_CAT: return count(g, node->x, depth) + count(g, node->y, depth);
-	case P_ALT: return count(g, node->x, depth) + count(g, node->y, depth) + 2;
+	default:
+		return 1;
+	case P_CAT:
+		return count(g, node->x, depth) + count(g, node->y, depth);
+	case P_ALT:
+		return count(g, node->x, depth) + count(g, node->y, depth) + 2;
 	case P_REP:
 		min = node->m;
 		max = node->n;
-		if (min == max) n = count(g, node->x, depth) * min;
-		else if (max < REPINF) n = count(g, node->x, depth) * max + (max - min);
-		else n = count(g, node->x, depth) * (min + 1) + 2;
-		if (n < 0 || n > REG_MAXPROG) die(g, "program too large");
+		if (min == max)
+			n = count(g, node->x, depth) * min;
+		else if (max < REPINF)
+			n = count(g, node->x, depth) * max + (max - min);
+		else
+			n = count(g, node->x, depth) * (min + 1) + 2;
+		if (n < 0 || n > REG_MAXPROG)
+			die(g, "program too large");
 		return n;
-	case P_PAR: return count(g, node->x, depth) + 2;
-	case P_PLA: return count(g, node->x, depth) + 2;
-	case P_NLA: return count(g, node->x, depth) + 2;
+	case P_PAR:
+		return count(g, node->x, depth) + 2;
+	case P_PLA:
+		return count(g, node->x, depth) + 2;
+	case P_NLA:
+		return count(g, node->x, depth) + 2;
 	}
 }
 
@@ -843,10 +859,24 @@ dumpnode(struct cstate *g, Renode *node)
 	Reclass *cc;
 	if (!node) { printf("Empty"); return; }
 	switch (node->type) {
-	case P_CAT: printf("Cat("); dumpnode(g, node->x); printf(", "); dumpnode(g, node->y); printf(")"); break;
-	case P_ALT: printf("Alt("); dumpnode(g, node->x); printf(", "); dumpnode(g, node->y); printf(")"); break;
+	case P_CAT:
+		printf("Cat(");
+		dumpnode(g, node->x);
+		printf(", ");
+		dumpnode(g, node->y);
+		printf(")");
+		break;
+	case P_ALT:
+		printf("Alt(");
+		dumpnode(g, node->x);
+		printf(", ");
+		dumpnode(g, node->y);
+		printf(")");
+		break;
 	case P_REP:
-		printf(node->ng ? "NgRep(%d,%d," : "Rep(%d,%d,", node->m, node->n);
+		printf(node->ng
+			? "NgRep(%d,%d,"
+			: "Rep(%d,%d,", node->m, node->n);
 		dumpnode(g, node->x);
 		printf(")");
 		break;
@@ -854,7 +884,11 @@ dumpnode(struct cstate *g, Renode *node)
 	case P_EOL: printf("Eol"); break;
 	case P_WORD: printf("Word"); break;
 	case P_NWORD: printf("NotWord"); break;
-	case P_PAR: printf("Par(%d,", node->n); dumpnode(g, node->x); printf(")"); break;
+	case P_PAR:
+		printf("Par(%d,", node->n);
+		dumpnode(g, node->x);
+		printf(")");
+		break;
 	case P_PLA: printf("PLA("); dumpnode(g, node->x); printf(")"); break;
 	case P_NLA: printf("NLA("); dumpnode(g, node->x); printf(")"); break;
 	case P_ANY: printf("Any"); break;
@@ -862,13 +896,15 @@ dumpnode(struct cstate *g, Renode *node)
 	case P_CCLASS:
 		printf("Class(");
 		cc = g->cclass + node->cc;
-		for (p = cc->spans; p < cc->end; p += 2) printf("%02X-%02X,", p[0], p[1]);
+		for (p = cc->spans; p < cc->end; p += 2)
+			printf("%02X-%02X,", p[0], p[1]);
 		printf(")");
 		break;
 	case P_NCCLASS:
 		printf("NotClass(");
 		cc = g->cclass + node->cc;
-		for (p = cc->spans; p < cc->end; p += 2) printf("%02X-%02X,", p[0], p[1]);
+		for (p = cc->spans; p < cc->end; p += 2)
+			printf("%02X-%02X,", p[0], p[1]);
 		printf(")");
 		break;
 	case P_REF: printf("Ref(%d)", node->n); break;

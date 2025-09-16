@@ -701,9 +701,9 @@ struct js_Ast {
 	js_Ast *parent, *a, *b, *c, *d;
 	double number;
 	const char *string;
-	js_JumpList *jumps; /* list of break/continue jumps to patch */
-	int casejump; /* for switch case clauses */
-	js_Ast *gcnext; /* next in alloc list */
+	js_JumpList *jumps;	/* list of break/continue jumps to patch */
+	int casejump;		/* for switch case clauses */
+	js_Ast *gcnext;		/* next in alloc list */
 };
 
 js_Ast*	jsP_parsefunction(js_State *J, const char *filename,

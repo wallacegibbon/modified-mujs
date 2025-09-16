@@ -131,7 +131,8 @@ js_tryboolean(js_State *J, int idx, int error)
 }
 
 static void
-js_loadstringx(js_State *J, const char *filename, const char *source, int iseval)
+js_loadstringx(js_State *J, const char *filename, const char *source,
+		int iseval)
 {
 	js_Ast *P;
 	js_Function *F;
@@ -170,23 +171,27 @@ js_loadfile(js_State *J, const char *filename)
 
 	f = fopen(filename, "rb");
 	if (!f) {
-		js_error(J, "cannot open file '%s': %s", filename, strerror(errno));
+		js_error(J, "cannot open file '%s': %s",
+				filename, strerror(errno));
 	}
 
 	if (fseek(f, 0, SEEK_END) < 0) {
 		fclose(f);
-		js_error(J, "cannot seek in file '%s': %s", filename, strerror(errno));
+		js_error(J, "cannot seek in file '%s': %s",
+				filename, strerror(errno));
 	}
 
 	n = ftell(f);
 	if (n < 0) {
 		fclose(f);
-		js_error(J, "cannot tell in file '%s': %s", filename, strerror(errno));
+		js_error(J, "cannot tell in file '%s': %s",
+				filename, strerror(errno));
 	}
 
 	if (fseek(f, 0, SEEK_SET) < 0) {
 		fclose(f);
-		js_error(J, "cannot seek in file '%s': %s", filename, strerror(errno));
+		js_error(J, "cannot seek in file '%s': %s",
+				filename, strerror(errno));
 	}
 
 	if (js_try(J)) {
@@ -200,7 +205,8 @@ js_loadfile(js_State *J, const char *filename)
 	if (t != n) {
 		js_free(J, s);
 		fclose(f);
-		js_error(J, "cannot read data from file '%s': %s", filename, strerror(errno));
+		js_error(J, "cannot read data from file '%s': %s",
+				filename, strerror(errno));
 	}
 
 	s[n] = 0; /* zero-terminate string containing file data */
